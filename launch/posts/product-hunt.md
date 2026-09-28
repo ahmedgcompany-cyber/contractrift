@@ -2,6 +2,8 @@
 
 **Name:** ContractRift
 **Tagline (≤ 60):** Know when the APIs and LLMs you depend on silently change
+**Website:** https://github.com/ahmedgcompany-cyber/contractrift
+**Demo:** https://136-119-147-140.sslip.io
 **Topics:** Developer Tools, Open Source, APIs, Artificial Intelligence
 
 **Description (≤ 260):**

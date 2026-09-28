@@ -54,6 +54,27 @@ docker run -d -p 3000:3000 -v contractrift-data:/data \
 Data then lives in the `/data` volume (PGlite). PGlite is single-connection; use PostgreSQL for
 larger installs or more than one instance.
 
+## Google Cloud free tier (what runs the public demo)
+
+The public demo (https://136-119-147-140.sslip.io) runs on a Google Cloud **e2-micro "Always Free"** VM (us-central1, 30 GB standard disk,
+Debian 12): $0 for the VM, disk and external IP within the free tier; only outbound traffic above 1 GB/month is billed
+(about $0.12/GB), guarded by a $5 budget alert. [`deploy/gcp/startup.sh`](deploy/gcp/startup.sh) installs Docker, adds
+1 GB swap and runs the released image behind Caddy (automatic Let's Encrypt HTTPS on an `<ip>.sslip.io` host name).
+
+```bash
+gcloud compute firewall-rules create contractrift-web --allow tcp:80,tcp:443 --target-tags contractrift-web
+gcloud compute instances create contractrift --zone us-central1-a --machine-type e2-micro \
+  --image-family debian-12 --image-project debian-cloud --boot-disk-size 30GB --boot-disk-type pd-standard \
+  --tags contractrift-web --metadata-from-file startup-script=deploy/gcp/startup.sh,encryption-key=ek.txt,setup-token=st.txt
+# after the first successful boot the secrets live in /opt/contractrift/secrets.env (root-only):
+gcloud compute instances remove-metadata contractrift --zone us-central1-a --keys encryption-key,setup-token
+```
+
+Upgrade: bump `CONTRACTRIFT_VERSION` in the script, run `gcloud compute instances add-metadata ... startup-script=...`, then
+`gcloud compute instances reset contractrift` (keeps the IP; a stop/start could change it and therefore the host name).
+Logs: `gcloud compute ssh contractrift --tunnel-through-iap --command "sudo docker logs contractrift-app-1"`.
+Limits: 1 GB RAM (the app uses about 300-400 MB), embedded database, single instance.
+
 ## Render (one click)
 
 `render.yaml` defines a Docker web service (0.5 CPU / 512 MB, ≈ $7/month) and a managed PostgreSQL 17

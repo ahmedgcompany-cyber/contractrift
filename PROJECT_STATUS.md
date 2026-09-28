@@ -1,6 +1,6 @@
 # Project Status
 
-Last updated: 2026-09-28 · Version **0.3.0** (renamed from "Tripline" in this release)
+Last updated: 2026-09-28 · Version **0.3.1** (renamed from "Tripline" in this release)
 
 - Repository (public): https://github.com/ahmedgcompany-cyber/contractrift
 - Website: https://ahmedgcompany-cyber.github.io/contractrift/
@@ -13,7 +13,7 @@ ContractRift is a self-hosted monitor for external dependencies (HTTP JSON APIs,
 outages **and silent structural drift**, with incidents, notifications, a CI gate, users/roles and an audit log.
 Selected after documented research (`research/`).
 
-**Status: functional, CI-verified, publicly released MVP.** Not yet: hosted demo (needs the owner's Render account),
+**Status: functional, CI-verified, publicly released MVP with a live demo (https://136-119-147-140.sslip.io).** Not yet:
 live tests against OpenAI/Anthropic cloud APIs (needs keys), load testing.
 
 ## COMPLETED
@@ -51,15 +51,15 @@ None open. One local E2E run out of 15 (during 0.2 work) failed once and was not
 
 ## KNOWN LIMITATIONS
 
-| Problem                          | Cause                                                                                                                           | Status                    | Workaround                           | Recommended solution                      |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | ------------------------------------ | ----------------------------------------- |
-| OpenAI/Anthropic not live-tested | No keys                                                                                                                         | Tests skip without keys   | See launch/YOUR_NEXT_STEPS.md step 2 | Run once                                  |
-| No hosted demo yet               | Needs owner's Render account and card                                                                                           | Blueprint ready           | Step 1 of YOUR_NEXT_STEPS.md         | —                                         |
-| Static UI indexed at startup     | `@fastify/static` `wildcard: false`                                                                                             | Documented                | Restart after rebuild                | Fine for immutable deploys                |
-| Drift is structural only         | Design                                                                                                                          | Documented                | JSONPath assertions                  | Optional value tracking                   |
-| In-memory rate limits            | Per-process                                                                                                                     | Documented                | Single instance                      | Shared store                              |
-| Name not trademark-registered    | Not a legal clearance                                                                                                           | Availability checked only | —                                    | Trademark search + domain before selling  |
-| Local-machine quirks             | Windows Application Control blocks unsigned `.exe`; `~/.claude/settings.json` has a UTF-8 BOM so gstack could not add its hooks | Documented                | ESLint/Prettier used                 | Remove the BOM if you want gstack's hooks |
+| Problem                                                | Cause                                                                                                                           | Status                               | Workaround                           | Recommended solution                         |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ | ------------------------------------ | -------------------------------------------- |
+| OpenAI/Anthropic not live-tested                       | No keys                                                                                                                         | Tests skip without keys              | See launch/YOUR_NEXT_STEPS.md step 2 | Run once                                     |
+| Demo runs on a 1 GB free VM with an IP-based host name | Free tier                                                                                                                       | Live, monitored by a $5 budget alert | —                                    | Buy a domain; larger host when traffic grows |
+| Static UI indexed at startup                           | `@fastify/static` `wildcard: false`                                                                                             | Documented                           | Restart after rebuild                | Fine for immutable deploys                   |
+| Drift is structural only                               | Design                                                                                                                          | Documented                           | JSONPath assertions                  | Optional value tracking                      |
+| In-memory rate limits                                  | Per-process                                                                                                                     | Documented                           | Single instance                      | Shared store                                 |
+| Name not trademark-registered                          | Not a legal clearance                                                                                                           | Availability checked only            | —                                    | Trademark search + domain before selling     |
+| Local-machine quirks                                   | Windows Application Control blocks unsigned `.exe`; `~/.claude/settings.json` has a UTF-8 BOM so gstack could not add its hooks | Documented                           | ESLint/Prettier used                 | Remove the BOM if you want gstack's hooks    |
 
 ## SECURITY NOTES
 
@@ -71,7 +71,7 @@ esbuild; accepted). Commit history uses the GitHub no-reply address (personal em
 | Suite                                                                                                                        | Where                         | Result                                               |
 | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------- | ---------------------------------------------------- |
 | Typecheck, ESLint, Prettier                                                                                                  | local + CI                    | pass                                                 |
-| Unit + integration (PGlite)                                                                                                  | local (Windows) + CI (Ubuntu) | **146 / 146**                                        |
+| Unit + integration (PGlite)                                                                                                  | local (Windows) + CI (Ubuntu) | **147 / 147**                                        |
 | Same suite on PostgreSQL 17                                                                                                  | CI                            | pass                                                 |
 | Playwright E2E (desktop + mobile)                                                                                            | local (Chrome) + CI           | **11 / 11**                                          |
 | docker-compose stack (build, start, readiness on PostgreSQL, setup, real outbound check, restart + persistence, healthcheck) | CI                            | pass                                                 |
@@ -89,7 +89,7 @@ research/_, launch/_.
 
 ## DEPLOYMENT STATUS
 
-Released as a Docker image and deployable via Render blueprint or docker-compose. No hosted instance yet.
+**Live public demo:** https://136-119-147-140.sslip.io on a Google Cloud e2-micro (Always Free) VM, Docker + Caddy HTTPS, v0.3.1, DEMO_MODE on, $5 budget alert. Verified: HTTPS with HSTS, HTTP to HTTPS redirect, demo checks against the GitHub API, Hugging Face MCP and DeepWiki MCP succeeding from the server with 0 errors. Also deployable via Render blueprint or docker-compose.
 
 ## EXTERNAL DEPENDENCIES
 
@@ -99,7 +99,7 @@ Node.js; PostgreSQL (optional). Monitored services and notification targets are 
 
 Step-by-step: [launch/YOUR_NEXT_STEPS.md](launch/YOUR_NEXT_STEPS.md).
 
-1. Deploy the public demo on Render (your account + card, ≈ $13/month).
+1. Create your admin account on the live demo with the setup token (YOUR_NEXT_STEPS.md step 1).
 2. OpenAI / Anthropic live test (your API keys in `.env`).
 3. Upload the social preview image (GitHub UI only).
 4. Publish the launch posts from your own accounts.
@@ -109,7 +109,7 @@ Decided 2026-09-28: name ContractRift · AGPL-3.0 + commercial · GitHub private
 
 ## RECOMMENDED NEXT STEPS
 
-1. Hosted demo, then launch (Show HN first).
+1. Launch (Show HN first).
 2. Live-test OpenAI/Anthropic.
 3. Retention for drift events/incidents/audit; auto-supersede drift events.
 4. Email notifications + per-monitor routing.

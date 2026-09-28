@@ -44,7 +44,7 @@ request goes through an SSRF guard.
 
 ## Try it
 
-ContractRift is open source (AGPL-3.0): https://github.com/ahmedgcompany-cyber/contractrift
+ContractRift is open source (AGPL-3.0): https://github.com/ahmedgcompany-cyber/contractrift — live demo: https://136-119-147-140.sslip.io
 
 ```bash
 docker run -d -p 3000:3000 -v contractrift:/data \

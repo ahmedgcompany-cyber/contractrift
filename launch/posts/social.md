@@ -19,8 +19,8 @@ you get a warning before your users notice the tone change.
 5/ Your keys stay on your servers: AES-256-GCM encrypted secrets, key rotation, SSRF guard. Plus a CI gate that blocks
 deploys while a dependency has unreviewed breaking drift.
 
-6/ AGPL-3.0, one Docker container. Feedback welcome 👇
-https://github.com/ahmedgcompany-cyber/contractrift
+6/ AGPL-3.0, one Docker container. Try the live demo: https://136-119-147-140.sslip.io
+Code: https://github.com/ahmedgcompany-cyber/contractrift
 
 # LinkedIn
 
@@ -32,7 +32,8 @@ I've released ContractRift, an open-source (AGPL-3.0), self-hosted monitor that 
 endpoints and MCP servers normally return and alerts when that contract breaks — with a review inbox, Slack/webhook
 alerts and a CI deploy gate. Because it's self-hosted, the API keys it needs stay inside your infrastructure.
 
-If your team depends on external APIs or AI providers, I'd value your feedback:
-https://github.com/ahmedgcompany-cyber/contractrift
+If your team depends on external APIs or AI providers, I'd value your feedback.
+Live demo: https://136-119-147-140.sslip.io
+Code: https://github.com/ahmedgcompany-cyber/contractrift
 
 #APIs #DevOps #SRE #AI #MCP #OpenSource

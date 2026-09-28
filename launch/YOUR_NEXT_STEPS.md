@@ -5,23 +5,21 @@ Everything else is done. After each step, tell Claude "step N done" and it conti
 
 ---
 
-## Step 1 — Put the live demo online (Render, ≈ $13/month) · 10 minutes
+## Step 1 — Create your admin account on the live demo · 2 minutes
 
-1. Go to https://render.com and click **Get Started** → **Sign in with GitHub** (use your `ahmedgcompany-cyber` account).
-2. Allow Render to access the **contractrift** repository when GitHub asks.
-3. Render → top-right avatar → **Billing** → add a payment card. (Needed: the free plan sleeps and would stop monitoring.)
-4. Open this link: https://render.com/deploy?repo=https://github.com/ahmedgcompany-cyber/contractrift
-5. Render shows "contractrift" (web service) and "contractrift-db" (database).
-   For **DEMO_MODE** type: `true`
-6. Click **Deploy Blueprint**. Wait until the service shows **Live** (5–10 minutes).
-7. Click the **contractrift** service → **Environment** → reveal **SETUP_TOKEN** → copy it.
-   Also copy **ENCRYPTION_KEY** into a password manager (you need it to restore backups).
-8. Click the service URL at the top (looks like `https://contractrift-xxxx.onrender.com`).
-   Enter the setup token, your name, email and a strong password → **Create account**. This is YOUR admin login.
-9. Tell Claude the URL. Claude adds it to the README, website and launch posts.
+The server is already running for free on Google Cloud: **https://136-119-147-140.sslip.io**
 
-(You don't need a domain now. Later: buy `contractrift.com` or `contractrift.dev` — both were unregistered on
-2026-09-28 — at any registrar, then Render → Settings → Custom Domains.)
+1. Open `C:\Users\AHMED\projects\tripline\.deploy\gcp-secrets.env` in Notepad and copy the value after `SETUP_TOKEN=`.
+   (That file never goes to GitHub. Keep `ENCRYPTION_KEY` from it in your password manager.)
+2. Open https://136-119-147-140.sslip.io/setup
+3. Paste the setup token, enter your name, email and a strong password, then click **Create account**.
+   This is your private admin login. Visitors use the read-only demo account shown on the sign-in page.
+
+Cost: $0 within Google's free tier. A budget alert emails you at $1, $2.50 and $5 in case traffic goes above the free
+1 GB/month. The server lives in your Google Cloud project `project-7fdbf92c-b2dd-4109-bc3` (VM name `contractrift`).
+Do **not** stop/start the VM from the console (the IP, and therefore the address, could change); use "Reset" if needed.
+
+(Paid alternative with managed PostgreSQL: Render, see DEPLOYMENT.md.)
 
 ---
 

@@ -17,6 +17,7 @@
 </p>
 
 <p align="center">
+  <a href="https://136-119-147-140.sslip.io"><strong>Live demo</strong></a> ·
   <a href="https://ahmedgcompany-cyber.github.io/contractrift/">Website</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="USER_GUIDE.md">User guide</a> ·
@@ -25,6 +26,8 @@
 </p>
 
 ![ContractRift dashboard: breaking drift, a model change and an outage](assets/screenshots/dashboard-light.png)
+
+> **Try it:** [https://136-119-147-140.sslip.io](https://136-119-147-140.sslip.io) — read-only demo account shown on the sign-in page, watching the real GitHub API and two public MCP servers.
 
 ## Why
 

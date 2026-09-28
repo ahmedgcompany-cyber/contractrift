@@ -7,7 +7,7 @@ are true for v0.3.0; do not add numbers (users, customers, benchmarks) that don'
 
 - Repo: https://github.com/ahmedgcompany-cyber/contractrift
 - Website: https://ahmedgcompany-cyber.github.io/contractrift/
-- Live demo: `<your Render URL>` (after step 1 of YOUR_NEXT_STEPS.md) — demo login is shown on the sign-in page
+- Live demo: https://136-119-147-140.sslip.io — read-only demo login is shown on the sign-in page
 
 ## One-liners
 

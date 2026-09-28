@@ -21,6 +21,7 @@ tools in this space all need them; ContractRift keeps them encrypted on your own
 - Webhooks (HMAC-signed) and Slack, roles, API tokens, audit log
 - AGPL-3.0
 
+Live demo (read-only): https://136-119-147-140.sslip.io
 Repo: https://github.com/ahmedgcompany-cyber/contractrift — feedback very welcome, especially false positives on real APIs.
 
 ## r/devops / r/sre

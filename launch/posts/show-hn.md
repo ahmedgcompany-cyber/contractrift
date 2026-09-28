@@ -34,4 +34,4 @@ AGPL-3.0.
 Known limits: drift is structural (value changes need explicit assertions), no load testing yet, alerts are
 webhook/Slack only. I'd love feedback on the drift classification rules and on false positives with real-world APIs.
 
-Live demo (read-only login on the sign-in page): <Render URL>
+Live demo (read-only login on the sign-in page): https://136-119-147-140.sslip.io
