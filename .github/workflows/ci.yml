@@ -76,10 +76,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Configure
-        run: printf 'ENCRYPTION_KEY=%s
-POSTGRES_PASSWORD=ci-password
-COOKIE_SECURE=false
-' "$(node scripts/gen-key.mjs)" > .env
+        run: |
+          {
+            echo "ENCRYPTION_KEY=$(node scripts/gen-key.mjs)"
+            echo "POSTGRES_PASSWORD=ci-password"
+            echo "COOKIE_SECURE=false"
+          } > .env
       - name: Build and start
         run: docker compose up -d --build
       - name: Wait for readiness and exercise the running container
