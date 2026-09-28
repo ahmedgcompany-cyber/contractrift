@@ -87,6 +87,22 @@ export async function startUpstreams(port = 0): Promise<Upstreams> {
     const body = await readBody(req);
     const p = url.pathname;
 
+    // Demo/E2E control: shallow-merge JSON into top-level state keys, or {"reset": true}.
+    if (p === '/__control' && req.method === 'POST') {
+      const patch = JSON.parse(body || '{}') as Record<string, unknown>;
+      if (patch.reset) {
+        Object.assign(state, defaultState());
+        sessions.clear();
+      }
+      for (const [k, v] of Object.entries(patch)) {
+        if (k === 'reset' || !(k in state)) continue;
+        const cur = (state as Record<string, unknown>)[k];
+        (state as Record<string, unknown>)[k] =
+          cur && typeof cur === 'object' && !Array.isArray(cur) && v && typeof v === 'object' ? { ...cur, ...v } : v;
+      }
+      return send(res, 200, { ok: true });
+    }
+
     if (p === '/json') {
       if (state.json.delayMs) await new Promise((r) => setTimeout(r, state.json.delayMs));
       res.writeHead(state.json.status, { 'content-type': state.json.contentType });

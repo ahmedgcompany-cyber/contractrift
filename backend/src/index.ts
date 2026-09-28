@@ -25,7 +25,6 @@ async function main() {
   }
 
   const jobs = new Jobs(ctx);
-  if (config.schedulerEnabled) jobs.start();
 
   let shuttingDown = false;
   const shutdown = async (signal: string) => {
@@ -42,6 +41,8 @@ async function main() {
   process.on('SIGTERM', () => void shutdown('SIGTERM'));
 
   await app.listen({ host: config.host, port: config.port });
+  // Start background work only once the server is actually serving.
+  if (config.schedulerEnabled) jobs.start();
 }
 
 main().catch((err) => {

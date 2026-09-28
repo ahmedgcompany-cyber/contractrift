@@ -16,7 +16,8 @@
     "db:migrate": "tsx --env-file-if-exists=../.env src/db/migrate-cli.ts",
     "openapi": "tsx src/openapi-export.ts",
     "seed:demo": "tsx --env-file-if-exists=../.env ../database/seeds/demo.ts",
-    "reset-password": "tsx --env-file-if-exists=../.env src/cli/reset-password.ts"
+    "reset-password": "tsx --env-file-if-exists=../.env src/cli/reset-password.ts",
+    "upstreams": "tsx test/support/run-upstreams.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.8",

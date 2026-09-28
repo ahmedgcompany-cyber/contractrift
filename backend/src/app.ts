@@ -130,19 +130,21 @@ export async function buildApp(config: AppConfig, database: Database, opts: { lo
     await app.register(fastifyStatic, {
       root: dist,
       wildcard: false,
-      setHeaders: (res, filePath) => {
-        if (filePath.includes(`${path.sep}assets${path.sep}`))
-          (res as unknown as { setHeader(k: string, v: string): void }).setHeader('cache-control', 'public, max-age=31536000, immutable');
+      setHeaders: (reply, filePath) => {
+        // @fastify/static v10 passes the Fastify reply here.
+        if (filePath.includes(`${path.sep}assets${path.sep}`)) reply.header('cache-control', 'public, max-age=31536000, immutable');
       },
     });
   }
 
   app.setNotFoundHandler((req, reply) => {
-    if (req.url.startsWith('/api/') || req.method !== 'GET' || !hasFrontend) {
+    const pathname = req.url.split('?')[0] ?? '';
+    // Only extension-less GET paths are client-side routes; a missing asset is a real 404.
+    if (req.url.startsWith('/api/') || req.method !== 'GET' || !hasFrontend || /\.[a-z0-9]+$/i.test(pathname)) {
       throw new AppError('NOT_FOUND', `Route ${req.method} ${req.url.split('?')[0]} was not found.`);
     }
     // Client-side routes of the single-page app.
-    return reply.header('cache-control', 'no-cache').sendFile('index.html');
+    return reply.header('cache-control', 'no-cache').sendFile('index.html', { cacheControl: false });
   });
 
   return { app, ctx };
