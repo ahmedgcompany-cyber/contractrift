@@ -48,6 +48,16 @@ describe('DEMO_MODE', () => {
     );
   });
 
+  it('still allows first-run admin setup after the demo account was created', async () => {
+    h = await createHarness({ ...env, SETUP_TOKEN: 'tok-123456' });
+    await ensureDemo(h.ctx);
+    const c = new Client(h.app);
+    expect((await c.get('/auth/setup-status')).body).toMatchObject({ needsSetup: true, setupTokenRequired: true });
+    expect((await c.post('/auth/setup', { ...ADMIN, setupToken: 'tok-123456' })).status).toBe(201);
+    expect((await c.get('/auth/setup-status')).body.needsSetup).toBe(false);
+    expect((await new Client(h.app).post('/auth/setup', { ...ADMIN, email: 'x@example.com', setupToken: 'tok-123456' })).status).toBe(409);
+  });
+
   it('cannot be locked out by strangers', async () => {
     h = await createHarness(env);
     await ensureDemo(h.ctx);

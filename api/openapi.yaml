@@ -2,7 +2,7 @@
 openapi: 3.1.0
 info:
   title: ContractRift API
-  version: 0.3.0
+  version: 0.3.1
   description: "Self-hosted dependency drift monitor. Authenticate with the session cookie (browser; state-changing requests need header `X-ContractRift-CSRF: 1`) or a read-only bearer API token."
 components:
   securitySchemes:

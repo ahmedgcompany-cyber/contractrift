@@ -1,27 +1,125 @@
-<!doctype html><html><head><meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-body{margin:0;width:1280px;height:640px;background:#f3f0e8;font-family:'Instrument Sans',sans-serif;color:#1c1b18;overflow:hidden;position:relative;
-background-image:linear-gradient(#e3ddcf 1px,transparent 1px),linear-gradient(90deg,#e3ddcf 1px,transparent 1px);background-size:48px 48px}
-.l{position:absolute;left:72px;top:70px;width:560px}
-.brand{display:flex;align-items:center;gap:14px;font-weight:700;font-size:34px}
-.brand svg{width:54px;height:54px}
-.eye{font-family:'Martian Mono',monospace;font-size:15px;letter-spacing:.14em;color:#d9531a;text-transform:uppercase;margin-top:44px}
-h1{font-size:54px;line-height:1.05;letter-spacing:-.03em;margin:14px 0 22px}
-p{font-size:22px;line-height:1.45;color:#4a4740;margin:0}
-.tags{position:absolute;left:72px;bottom:60px;display:flex;gap:10px}
-.tag{font-family:'Martian Mono',monospace;font-size:14px;border:1px solid #b9b1a0;border-radius:99px;padding:6px 14px;background:#fbfaf6}
-.shot{position:absolute;right:-60px;top:70px;width:640px;border:1px solid #d9d3c5;border-radius:12px;overflow:hidden;box-shadow:0 30px 60px -30px rgba(0,0,0,.45)}
-.shot img{display:block;width:100%}
-.trip{position:absolute;left:0;right:0;bottom:30px;height:8px;background:linear-gradient(#1c1b18,#1c1b18) bottom/100% 1px no-repeat,repeating-linear-gradient(90deg,#9a9282 0 1px,transparent 1px 14px) bottom/100% 6px no-repeat}
-</style></head><body>
-<div class="l">
-<div class="brand"><svg viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#1c1b18"/><path d="M4 18h7l3-9 4 15 3-9h7" fill="none" stroke="#d9531a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>ContractRift</div>
-<div class="eye">Open source · Self-hosted</div>
-<h1>Know when your upstream APIs silently change.</h1>
-<p>Drift &amp; outage monitoring for the REST APIs, LLMs and MCP servers you depend on. Your keys stay on your servers.</p>
-</div>
-<div class="shot"><img src="screenshots/dashboard-light.png"></div>
-<div class="tags"><span class="tag">REST</span><span class="tag">LLM</span><span class="tag">MCP</span><span class="tag">AGPL-3.0</span></div>
-<div class="trip"></div>
-</body></html>
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Martian+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        width: 1280px;
+        height: 640px;
+        background: #f3f0e8;
+        font-family: 'Instrument Sans', sans-serif;
+        color: #1c1b18;
+        overflow: hidden;
+        position: relative;
+        background-image: linear-gradient(#e3ddcf 1px, transparent 1px), linear-gradient(90deg, #e3ddcf 1px, transparent 1px);
+        background-size: 48px 48px;
+      }
+      .l {
+        position: absolute;
+        left: 72px;
+        top: 70px;
+        width: 560px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        font-weight: 700;
+        font-size: 34px;
+      }
+      .brand svg {
+        width: 54px;
+        height: 54px;
+      }
+      .eye {
+        font-family: 'Martian Mono', monospace;
+        font-size: 15px;
+        letter-spacing: 0.14em;
+        color: #d9531a;
+        text-transform: uppercase;
+        margin-top: 44px;
+      }
+      h1 {
+        font-size: 54px;
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        margin: 14px 0 22px;
+      }
+      p {
+        font-size: 22px;
+        line-height: 1.45;
+        color: #4a4740;
+        margin: 0;
+      }
+      .tags {
+        position: absolute;
+        left: 72px;
+        bottom: 60px;
+        display: flex;
+        gap: 10px;
+      }
+      .tag {
+        font-family: 'Martian Mono', monospace;
+        font-size: 14px;
+        border: 1px solid #b9b1a0;
+        border-radius: 99px;
+        padding: 6px 14px;
+        background: #fbfaf6;
+      }
+      .shot {
+        position: absolute;
+        right: -60px;
+        top: 70px;
+        width: 640px;
+        border: 1px solid #d9d3c5;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.45);
+      }
+      .shot img {
+        display: block;
+        width: 100%;
+      }
+      .trip {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 30px;
+        height: 8px;
+        background:
+          linear-gradient(#1c1b18, #1c1b18) bottom/100% 1px no-repeat,
+          repeating-linear-gradient(90deg, #9a9282 0 1px, transparent 1px 14px) bottom/100% 6px no-repeat;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="l">
+      <div class="brand">
+        <svg viewBox="0 0 32 32">
+          <rect width="32" height="32" rx="6" fill="#1c1b18" />
+          <path
+            d="M4 18h7l3-9 4 15 3-9h7"
+            fill="none"
+            stroke="#d9531a"
+            stroke-width="2.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          /></svg
+        >ContractRift
+      </div>
+      <div class="eye">Open source · Self-hosted</div>
+      <h1>Know when your upstream APIs silently change.</h1>
+      <p>Drift &amp; outage monitoring for the REST APIs, LLMs and MCP servers you depend on. Your keys stay on your servers.</p>
+    </div>
+    <div class="shot"><img src="screenshots/dashboard-light.png" /></div>
+    <div class="tags">
+      <span class="tag">REST</span><span class="tag">LLM</span><span class="tag">MCP</span><span class="tag">AGPL-3.0</span>
+    </div>
+    <div class="trip"></div>
+  </body>
+</html>

@@ -39,8 +39,9 @@ export function checkPasswordPolicy(password: string): void {
 
 export const hashPassword = (password: string) => hash(password, { algorithm: 2 /* argon2id */ });
 
+/** Setup is needed until an administrator exists (the DEMO_MODE viewer account does not count). */
 export async function needsSetup(ctx: Ctx): Promise<boolean> {
-  const [row] = await ctx.db.select({ n: count() }).from(users);
+  const [row] = await ctx.db.select({ n: count() }).from(users).where(eq(users.role, 'admin'));
   return (row?.n ?? 0) === 0;
 }
 
@@ -50,7 +51,7 @@ export async function setupFirstAdmin(ctx: Ctx, input: { email: string; name: st
   const passwordHash = await hashPassword(input.password);
   const user = await ctx.db.transaction(async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(7426001)`);
-    const [row] = await tx.select({ n: count() }).from(users);
+    const [row] = await tx.select({ n: count() }).from(users).where(eq(users.role, 'admin'));
     if ((row?.n ?? 0) > 0) throw new AppError('SETUP_ALREADY_DONE', 'Setup has already been completed.');
     const [created] = await tx
       .insert(users)

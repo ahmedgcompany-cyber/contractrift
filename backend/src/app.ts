@@ -23,7 +23,7 @@ import { userRoutes } from './routes/users.js';
 import type { Ctx } from './services/context.js';
 
 export const API_PREFIX = '/api/v1';
-export const VERSION = '0.3.0';
+export const VERSION = '0.3.1';
 
 const REDACT = [
   'req.headers.authorization',

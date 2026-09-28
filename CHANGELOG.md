@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow SemVer.
 
+## 0.3.1 — 2026-09-28
+
+### Fixed
+
+- With `DEMO_MODE` on, first-run setup was reported as complete (the auto-created demo viewer counted as an
+  existing user), so the administrator account could not be created. Setup now depends on whether an
+  **administrator** exists. Found while deploying the public demo.
+
 ## 0.3.0 — 2026-09-28
 
 ### Changed

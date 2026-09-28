@@ -10,3 +10,5 @@ playwright-report/
 !.env.example
 .DS_Store
 *.tsbuildinfo
+.deploy/
+.gcp-project
