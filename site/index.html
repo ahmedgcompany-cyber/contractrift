@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ContractRift — know when your upstream APIs change</title>
+    <meta
+      name="description"
+      content="Self-hosted, open-source monitor that detects when the REST APIs, LLM APIs and MCP servers you depend on go down or silently change. Your API keys never leave your infrastructure."
+    />
+    <meta property="og:title" content="ContractRift — know when your upstream APIs change" />
+    <meta
+      property="og:description"
+      content="Detect silent drift in third-party REST APIs, LLM APIs and MCP servers. Self-hosted, AGPL-3.0."
+    />
+    <meta property="og:image" content="https://ahmedgcompany-cyber.github.io/contractrift/screenshots/dashboard-light.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="logo.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Martian+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f3f0e8;
+        --panel: #fbfaf6;
+        --ink: #1c1b18;
+        --ink-2: #4a4740;
+        --ink-3: #7c786e;
+        --rule: #d9d3c5;
+        --signal: #d9531a;
+        --up: #2f7d4f;
+        --down: #c2362b;
+        --warn: #a86a00;
+        --sans: 'Instrument Sans', system-ui, sans-serif;
+        --mono: 'Martian Mono', ui-monospace, monospace;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --paper: #121210;
+          --panel: #1a1a17;
+          --ink: #ece8dd;
+          --ink-2: #bdb8ab;
+          --ink-3: #8a857a;
+          --rule: #2e2d28;
+          --signal: #f0703a;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font: 17px/1.6 var(--sans);
+        background-image: linear-gradient(var(--rule) 1px, transparent 1px), linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+        background-size: 48px 48px;
+      }
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: var(--paper);
+        opacity: 0.88;
+        z-index: -1;
+      }
+      a {
+        color: inherit;
+      }
+      code,
+      .mono {
+        font-family: var(--mono);
+        font-size: 0.85em;
+      }
+      .wrap {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+      header.top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 22px 0;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .brand {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        font-weight: 700;
+        font-size: 1.15rem;
+        text-decoration: none;
+      }
+      .brand img {
+        width: 30px;
+        height: 30px;
+      }
+      nav.links {
+        display: flex;
+        gap: 18px;
+        font-size: 0.95rem;
+        flex-wrap: wrap;
+      }
+      nav.links a {
+        text-decoration: none;
+        color: var(--ink-2);
+      }
+      .hero {
+        padding: 56px 0 28px;
+      }
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--signal);
+      }
+      h1 {
+        font-size: clamp(2.2rem, 5vw, 3.6rem);
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        margin: 12px 0 18px;
+        max-width: 16ch;
+      }
+      .lede {
+        font-size: 1.2rem;
+        color: var(--ink-2);
+        max-width: 60ch;
+        margin: 0 0 26px;
+      }
+      .cta {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 18px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        border: 1px solid var(--ink);
+      }
+      .btn.primary {
+        background: var(--ink);
+        color: var(--paper);
+      }
+      .btn.primary:hover {
+        background: var(--signal);
+        border-color: var(--signal);
+        color: #fff;
+      }
+      .trip {
+        height: 8px;
+        margin: 42px 0;
+        background:
+          linear-gradient(var(--ink), var(--ink)) bottom / 100% 1px no-repeat,
+          repeating-linear-gradient(90deg, var(--ink-3) 0 1px, transparent 1px 14px) bottom / 100% 6px no-repeat;
+      }
+      .shot {
+        border: 1px solid var(--rule);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.45);
+        background: var(--panel);
+      }
+      .shot img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      h2 {
+        font-size: 1.8rem;
+        letter-spacing: -0.02em;
+        margin: 0 0 14px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        padding: 20px;
+      }
+      .card h3 {
+        margin: 0 0 6px;
+        font-size: 1.05rem;
+      }
+      .card p {
+        margin: 0;
+        color: var(--ink-2);
+        font-size: 0.95rem;
+      }
+      .kind {
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        color: var(--signal);
+        text-transform: uppercase;
+      }
+      .two {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+        align-items: center;
+      }
+      pre {
+        background: var(--ink);
+        color: var(--paper);
+        padding: 16px 18px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-family: var(--mono);
+        font-size: 0.8rem;
+        line-height: 1.6;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+        background: var(--panel);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--rule);
+      }
+      th {
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-3);
+      }
+      .yes {
+        color: var(--up);
+        font-weight: 600;
+      }
+      .no {
+        color: var(--ink-3);
+      }
+      section {
+        padding: 28px 0;
+      }
+      footer {
+        padding: 40px 0 60px;
+        color: var(--ink-3);
+        font-size: 0.9rem;
+        border-top: 1px solid var(--rule);
+        margin-top: 40px;
+      }
+      .badge {
+        display: inline-block;
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        padding: 2px 8px;
+        border-radius: 99px;
+        border: 1px solid var(--rule);
+      }
+      @media (max-width: 820px) {
+        .grid,
+        .two {
+          grid-template-columns: 1fr;
+        }
+        nav.links {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <a class="brand" href="./"><img src="logo.svg" alt="" /> ContractRift</a>
+        <nav class="links" aria-label="Site">
+          <a href="#how">How it works</a>
+          <a href="#compare">Compare</a>
+          <a href="#start">Get started</a>
+          <a href="https://github.com/ahmedgcompany-cyber/contractrift">GitHub</a>
+        </nav>
+      </header>
+
+      <section class="hero">
+        <div class="eyebrow">Open source · self-hosted · AGPL-3.0</div>
+        <h1>Know when your upstream APIs change — before your users do.</h1>
+        <p class="lede">
+          ContractRift continuously probes the REST APIs, LLM APIs and MCP tool servers your product depends on. It learns what their
+          responses look like and alerts you when they go down <em>or silently change</em>: a removed field, a new type, a different model
+          behind your alias, a tool that gained a required parameter. Your API keys never leave your servers.
+        </p>
+        <div class="cta">
+          <a class="btn primary" href="#start">Run it in 2 minutes</a>
+          <a class="btn" href="https://github.com/ahmedgcompany-cyber/contractrift">★ Star on GitHub</a>
+        </div>
+      </section>
+
+      <div class="shot">
+        <img src="screenshots/dashboard-light.png" alt="ContractRift dashboard showing breaking drift, a model change and an outage" />
+      </div>
+
+      <div class="trip" aria-hidden="true"></div>
+
+      <section id="how">
+        <h2>Uptime checks see “200 OK”. Your code sees a missing field.</h2>
+        <p class="lede">
+          Upstream providers change response formats, tighten validation and move model aliases without notice. Unit tests use frozen mocks;
+          uptime monitors only check the status code. ContractRift watches the <strong>contract</strong>.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <div class="kind">REST</div>
+            <h3>Structural drift</h3>
+            <p>
+              Baseline learned from real responses. Removed or re-typed fields are breaking; new nulls are warnings; additions are info. No
+              per-field assertions to write.
+            </p>
+          </div>
+          <div class="card">
+            <div class="kind">LLM</div>
+            <h3>Model & output drift</h3>
+            <p>
+              OpenAI-compatible and Anthropic formats. Flags when the provider reports a different model and when output assertions (text,
+              regex, JSON Schema) stop passing.
+            </p>
+          </div>
+          <div class="card">
+            <div class="kind">MCP</div>
+            <h3>Tool drift</h3>
+            <p>
+              Supports the 2026-07-28 stateless protocol and older servers. Detects removed tools, new required parameters and failing tool
+              calls.
+            </p>
+          </div>
+          <div class="card">
+            <div class="kind">Alerts</div>
+            <h3>Incidents & drift inbox</h3>
+            <p>Severity-ranked drift, accept or dismiss in one click, HMAC-signed webhooks and Slack with retries.</p>
+          </div>
+          <div class="card">
+            <div class="kind">CI</div>
+            <h3>Deploy gate</h3>
+            <p>One command in your pipeline fails the deploy while a tagged dependency is down or has unreviewed breaking drift.</p>
+          </div>
+          <div class="card">
+            <div class="kind">Security</div>
+            <h3>Keys stay home</h3>
+            <p>Self-hosted. Secrets encrypted with AES-256-GCM, write-only in the API, key rotation, SSRF protection, audit log.</p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="two">
+          <div>
+            <h2>Review changes like pull requests</h2>
+            <p>
+              Every deviation lands in the drift inbox with its path, before → after and severity. Intended change?
+              <strong>Accept</strong> and the baseline updates. Noise? <strong>Dismiss</strong> that exact change set.
+            </p>
+          </div>
+          <div class="shot">
+            <img src="screenshots/drift-inbox.png" alt="Drift inbox listing breaking and warning changes" loading="lazy" />
+          </div>
+        </div>
+      </section>
+
+      <section id="compare">
+        <h2>Where it fits</h2>
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Uptime monitors</th>
+              <th>SaaS drift monitors</th>
+              <th>ContractRift</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Detects silent response changes</td>
+              <td class="no">hand-written checks</td>
+              <td class="yes">yes</td>
+              <td class="yes">yes, learned baseline</td>
+            </tr>
+            <tr>
+              <td>LLM + MCP aware</td>
+              <td class="no">no</td>
+              <td class="no">partly</td>
+              <td class="yes">yes</td>
+            </tr>
+            <tr>
+              <td>Your API keys stay on your servers</td>
+              <td class="yes">self-hosted options</td>
+              <td class="no">no</td>
+              <td class="yes">yes</td>
+            </tr>
+            <tr>
+              <td>CI deploy gate</td>
+              <td class="no">no</td>
+              <td class="no">rarely</td>
+              <td class="yes">yes</td>
+            </tr>
+            <tr>
+              <td>Open source</td>
+              <td>some</td>
+              <td class="no">no</td>
+              <td class="yes">AGPL-3.0 + commercial</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="start">
+        <h2>Get started</h2>
+        <div class="two">
+          <div>
+            <p><strong>Docker</strong> (embedded PostgreSQL, data in a volume):</p>
+            <pre>
+docker run -d -p 3000:3000 -v contractrift:/data \
+  -e ENCRYPTION_KEY=$(openssl rand -base64 32) \
+  ghcr.io/ahmedgcompany-cyber/contractrift:latest</pre>
+            <p>
+              <strong>Docker Compose</strong> with PostgreSQL 17, or <strong>Node.js 22+</strong>: see the
+              <a href="https://github.com/ahmedgcompany-cyber/contractrift#quick-start-local-no-database-server-needed">README</a>.
+            </p>
+          </div>
+          <div>
+            <p><strong>One-click cloud</strong> (Render, ~$13/month with managed PostgreSQL):</p>
+            <p>
+              <a href="https://render.com/deploy?repo=https://github.com/ahmedgcompany-cyber/contractrift"
+                ><img src="https://render.com/images/deploy-to-render-button.svg" alt="Deploy to Render"
+              /></a>
+            </p>
+            <p><strong>CI gate:</strong></p>
+            <pre>
+CONTRACTRIFT_URL=https://cr.example.com \
+CONTRACTRIFT_TOKEN=cr_… \
+node scripts/contractrift-gate.mjs --tags payments</pre>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <p>
+          ContractRift is open source under the
+          <a href="https://github.com/ahmedgcompany-cyber/contractrift/blob/main/LICENSE">GNU AGPL-3.0</a>, with
+          <a href="https://github.com/ahmedgcompany-cyber/contractrift/blob/main/COMMERCIAL_LICENSE.md">commercial licenses</a> available.
+          <span class="badge">v0.3.0</span>
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

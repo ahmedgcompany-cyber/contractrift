@@ -11,7 +11,7 @@
 One Node.js process serves the API, the UI and runs background jobs. State lives in PostgreSQL.
 
 ```
-Internet ─► TLS reverse proxy (Caddy/nginx/Traefik) ─► Tripline :3000 ─► PostgreSQL
+Internet ─► TLS reverse proxy (Caddy/nginx/Traefik) ─► ContractRift :3000 ─► PostgreSQL
                                                           └──► monitored upstreams / webhooks
 ```
 
@@ -23,7 +23,7 @@ See [INSTALLATION.md](INSTALLATION.md): `npm ci && npm run build && npm start` o
 
 1. **PostgreSQL** database and user; set `DATABASE_URL`.
 2. `ENCRYPTION_KEY` from `npm run gen-key`, stored in your secret manager **and** backed up.
-3. `NODE_ENV=production`, `APP_URL=https://tripline.example.com`.
+3. `NODE_ENV=production`, `APP_URL=https://contractrift.example.com`.
 4. Serve over **HTTPS** via a reverse proxy; keep `COOKIE_SECURE=true` (default in production);
    set `TRUST_PROXY=true` so rate limits and audit logs see real client IPs.
 5. Leave `ALLOW_PRIVATE_TARGETS=false` unless you must monitor internal services
@@ -37,7 +37,7 @@ See [INSTALLATION.md](INSTALLATION.md): `npm ci && npm run build && npm start` o
 cp .env.example .env
 # set ENCRYPTION_KEY and add POSTGRES_PASSWORD=<strong password>
 docker compose up -d --build
-docker compose logs -f tripline
+docker compose logs -f contractrift
 ```
 
 The image (`Dockerfile`) is multi-stage on `node:24-bookworm-slim`, runs as the non-root `node`
@@ -46,13 +46,26 @@ user, exposes 3000, declares a `HEALTHCHECK` on `/readyz`, and applies migration
 Without PostgreSQL (single node, small installs):
 
 ```bash
-docker build -t tripline .
-docker run -d -p 3000:3000 -v tripline-data:/data \
-  -e ENCRYPTION_KEY=... -e APP_URL=https://tripline.example.com tripline
+docker build -t contractrift .
+docker run -d -p 3000:3000 -v contractrift-data:/data \
+  -e ENCRYPTION_KEY=... -e APP_URL=https://contractrift.example.com contractrift
 ```
 
 Data then lives in the `/data` volume (PGlite). PGlite is single-connection; use PostgreSQL for
 larger installs or more than one instance.
+
+## Render (one click)
+
+`render.yaml` defines a Docker web service (0.5 CPU / 512 MB, ≈ $7/month) and a managed PostgreSQL 17
+database (≈ $6/month) — list prices checked 2026-09-28. Render generates `ENCRYPTION_KEY` and `SETUP_TOKEN`,
+wires `DATABASE_URL`, and sets `RENDER_EXTERNAL_URL` (used as `APP_URL`).
+
+1. Open https://render.com/deploy?repo=https://github.com/ahmedgcompany-cyber/contractrift (or the button in the README).
+2. When asked for `DEMO_MODE`, enter `true` for a public read-only demo or `false` for a private install.
+3. After the first deploy, open the service's **Environment** tab, copy `SETUP_TOKEN`, open the service URL and
+   create the admin account with it. Also copy `ENCRYPTION_KEY` into your password manager.
+
+Free Render plans are not suitable: free web services sleep (so checks stop) and free databases expire.
 
 ## Bare metal / VM (systemd)
 
@@ -61,12 +74,12 @@ npm ci && npm run build && npm prune --omit=dev
 ```
 
 ```ini
-# /etc/systemd/system/tripline.service
+# /etc/systemd/system/contractrift.service
 [Service]
-WorkingDirectory=/opt/tripline
-EnvironmentFile=/etc/tripline.env
+WorkingDirectory=/opt/contractrift
+EnvironmentFile=/etc/contractrift.env
 ExecStart=/usr/bin/node backend/dist/index.js
-User=tripline
+User=contractrift
 Restart=on-failure
 ```
 
@@ -76,7 +89,7 @@ the server and database.
 ## Reverse proxy example (Caddy)
 
 ```
-tripline.example.com {
+contractrift.example.com {
   reverse_proxy 127.0.0.1:3000
 }
 ```

@@ -21,7 +21,7 @@
 
 ## First run
 
-1. Open Tripline and create the administrator account.
+1. Open ContractRift and create the administrator account. If the server sets `SETUP_TOKEN`, enter it (on Render: service → Environment).
 2. **Settings → Notifications → Add channel** so incidents and drift reach you.
 3. **New monitor**.
 
@@ -52,7 +52,7 @@ without saving anything — the result shows each check and how many JSON paths 
   every check costs tokens.
 - **Output checks:** `contains / notContains` (case-insensitive), `equals`, `matches`,
   `jsonValid`, `jsonSchema` (Markdown code fences around JSON are tolerated).
-- Tripline records the **model the provider reports**. If it changes (e.g. an alias moved to
+- ContractRift records the **model the provider reports**. If it changes (e.g. an alias moved to
   a new snapshot) that is **warning** drift.
 
 ### MCP server
@@ -100,7 +100,7 @@ not create new events; the occurrence count increases.
 Channels receive the events you tick: incident opened/resolved, breaking/warning/info drift.
 
 - **Webhook** payload is JSON: `event, occurredAt, summary, monitor, incident | drift, link`.
-  With a signing secret, verify `X-Tripline-Signature: sha256=HMAC_SHA256(secret, X-Tripline-Timestamp + "." + body)`.
+  With a signing secret, verify `X-ContractRift-Signature: sha256=HMAC_SHA256(secret, X-ContractRift-Timestamp + "." + body)`.
 - **Slack**: incoming-webhook URL (https only).
 - Failed deliveries retry with exponential backoff (30 s, 1 min, 2 min, 4 min) and give up after
   5 attempts. See **Deliveries** per channel. **Send test** delivers immediately.
@@ -111,8 +111,8 @@ Channels receive the events you tick: incident opened/resolved, breaking/warning
 2. In CI:
 
 ```bash
-TRIPLINE_URL=https://tripline.example.com TRIPLINE_TOKEN=tl_… \
-  node scripts/tripline-gate.mjs --tags payments --fail-on down,breaking
+CONTRACTRIFT_URL=https://contractrift.example.com CONTRACTRIFT_TOKEN=cr_… \
+  node scripts/contractrift-gate.mjs --tags payments --fail-on down,breaking
 ```
 
 Exit codes: `0` pass, `1` a matching monitor is down / has open drift at the chosen severity,

@@ -154,7 +154,7 @@ function slackBody(p: NotificationPayload) {
   for (const c of p.drift?.changes.slice(0, 10) ?? []) lines.push(`• [${c.severity}] ${c.message}`);
   if ((p.drift?.changes.length ?? 0) > 10) lines.push(`…and ${(p.drift?.changes.length ?? 0) - 10} more`);
   if (p.incident?.cause) lines.push(`Cause: ${p.incident.cause}`);
-  if (p.link) lines.push(`<${p.link}|Open in Tripline>`);
+  if (p.link) lines.push(`<${p.link}|Open in ContractRift>`);
   return { text: lines.join('\n') };
 }
 
@@ -164,13 +164,13 @@ export async function send(ctx: Ctx, channel: ChannelRow, payload: NotificationP
   const body = JSON.stringify(channel.kind === 'slack' ? slackBody(payload) : payload);
   const headers: Record<string, string> = {
     'content-type': 'application/json',
-    'x-tripline-event': payload.event,
-    'x-tripline-delivery': deliveryId,
+    'x-contractrift-event': payload.event,
+    'x-contractrift-delivery': deliveryId,
   };
   if (channel.kind === 'webhook' && cfg.secret) {
     const timestamp = Math.floor(Date.now() / 1000).toString();
-    headers['x-tripline-timestamp'] = timestamp;
-    headers['x-tripline-signature'] = `sha256=${hmacSha256(cfg.secret, `${timestamp}.${body}`)}`;
+    headers['x-contractrift-timestamp'] = timestamp;
+    headers['x-contractrift-signature'] = `sha256=${hmacSha256(cfg.secret, `${timestamp}.${body}`)}`;
   }
   const res = await outboundRequest({
     url: cfg.url,
@@ -192,7 +192,7 @@ export async function testChannel(ctx: Ctx, id: string, actor: Actor) {
   const payload: NotificationPayload = {
     event: 'test',
     occurredAt: new Date().toISOString(),
-    summary: `Test notification from Tripline for channel "${channel.name}".`,
+    summary: `Test notification from ContractRift for channel "${channel.name}".`,
     link: ctx.config.appUrl,
   };
   const deliveryId = randomUUID();

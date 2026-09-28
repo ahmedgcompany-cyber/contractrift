@@ -33,12 +33,12 @@ jobs:
         image: postgres:17
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: tripline_test
+          POSTGRES_DB: contractrift_test
         ports: ['5432:5432']
         options: >-
           --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
     env:
-      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/tripline_test
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/contractrift_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -89,15 +89,15 @@ jobs:
           for i in $(seq 1 60); do curl -fsS localhost:3000/readyz && break; sleep 2; done
           curl -fsS localhost:3000/readyz | grep '"database":"pg"'
           curl -fsS localhost:3000/ | grep -q 'id="root"'
-          curl -fsS -X POST localhost:3000/api/v1/auth/setup -H 'x-tripline-csrf: 1' -H 'content-type: application/json'             -d '{"email":"ci@example.com","name":"CI","password":"ci-password-123"}' -c jar | grep '"role":"admin"'
-          curl -fsS -b jar -X POST localhost:3000/api/v1/monitors -H 'x-tripline-csrf: 1' -H 'content-type: application/json'             -d '{"name":"GitHub","kind":"http","config":{"url":"https://api.github.com/repos/nodejs/node"}}' | grep '"kind":"http"'
+          curl -fsS -X POST localhost:3000/api/v1/auth/setup -H 'x-contractrift-csrf: 1' -H 'content-type: application/json'             -d '{"email":"ci@example.com","name":"CI","password":"ci-password-123"}' -c jar | grep '"role":"admin"'
+          curl -fsS -b jar -X POST localhost:3000/api/v1/monitors -H 'x-contractrift-csrf: 1' -H 'content-type: application/json'             -d '{"name":"GitHub","kind":"http","config":{"url":"https://api.github.com/repos/nodejs/node"}}' | grep '"kind":"http"'
           id=$(curl -fsS -b jar localhost:3000/api/v1/monitors | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>console.log(JSON.parse(s).monitors[0].id))")
-          curl -fsS -b jar -X POST -H 'x-tripline-csrf: 1' localhost:3000/api/v1/monitors/$id/run | tee run.json
+          curl -fsS -b jar -X POST -H 'x-contractrift-csrf: 1' localhost:3000/api/v1/monitors/$id/run | tee run.json
           grep -q '"ok":true' run.json
-          docker compose restart tripline
+          docker compose restart contractrift
           for i in $(seq 1 30); do curl -fsS localhost:3000/readyz && break; sleep 2; done
           curl -fsS -b jar localhost:3000/api/v1/monitors | grep -q '"name":"GitHub"'   # data survived a restart
-          test "$(docker inspect --format '{{.State.Health.Status}}' $(docker compose ps -q tripline))" = healthy || (sleep 35; test "$(docker inspect --format '{{.State.Health.Status}}' $(docker compose ps -q tripline))" = healthy)
+          test "$(docker inspect --format '{{.State.Health.Status}}' $(docker compose ps -q contractrift))" = healthy || (sleep 35; test "$(docker inspect --format '{{.State.Health.Status}}' $(docker compose ps -q contractrift))" = healthy)
       - name: Logs
         if: always()
         run: docker compose logs --no-color

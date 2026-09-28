@@ -6,7 +6,9 @@ Read this first, then [CLAUDE_CODE_GUIDE.md](CLAUDE_CODE_GUIDE.md) for workflows
 
 ## Product
 
-Tripline is a self-hosted web app that monitors a team's external dependencies — HTTP JSON APIs,
+(Named "Tripline" until v0.3.0.)
+
+ContractRift is a self-hosted web app that monitors a team's external dependencies — HTTP JSON APIs,
 LLM APIs, MCP servers. It runs scheduled probes, opens incidents on repeated failures, and —
 its core differentiator — learns the **structure** of normal responses and reports **drift**
 (fields removed/re-typed/newly null/added; LLM reported model changes; MCP tool/required-param
@@ -65,7 +67,7 @@ drift_events, notification_channels, notification_deliveries, audit_log. See DAT
 ## API
 
 REST under `/api/v1`, documented in API_DOCUMENTATION.md and `api/openapi.yaml` (generated).
-Auth: session cookie + `X-Tripline-CSRF: 1` for writes, or read-only bearer tokens.
+Auth: session cookie + `X-ContractRift-CSRF: 1` for writes, or read-only bearer tokens.
 
 ## Configuration
 
@@ -85,7 +87,7 @@ npm run upstreams -w backend              # fake upstreams :4010 (needs ALLOW_PR
 
 ```bash
 npm run typecheck && npm run lint
-npm test                                  # 140 Vitest tests (unit + integration, PGlite in-memory)
+npm test                                  # 146 Vitest tests (unit + integration, PGlite in-memory)
 npm run test:live -w backend              # opt-in, real external services (see test/live/live.test.ts)
 npm run build && npm run test:e2e         # 11 Playwright tests (PW_CHANNEL=chrome to use installed Chrome)
 TEST_DATABASE_URL=postgres://… npm test   # against real PostgreSQL (DROPS schemas!)

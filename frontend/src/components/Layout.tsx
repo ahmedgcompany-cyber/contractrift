@@ -16,7 +16,7 @@ export function Logo() {
 
 function getTheme(): 'light' | 'dark' {
   try {
-    const saved = localStorage.getItem('tripline-theme');
+    const saved = localStorage.getItem('contractrift-theme');
     if (saved === 'light' || saved === 'dark') return saved;
   } catch {
     /* storage unavailable */
@@ -29,7 +29,7 @@ export function applyTheme(theme = getTheme()) {
 }
 
 export function Layout() {
-  const { user, can, refresh } = useAuth();
+  const { user, can, refresh, isDemoUser } = useAuth();
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState(getTheme());
   const loc = useLocation();
@@ -42,7 +42,7 @@ export function Layout() {
   useEffect(() => {
     applyTheme(theme);
     try {
-      localStorage.setItem('tripline-theme', theme);
+      localStorage.setItem('contractrift-theme', theme);
     } catch {
       /* ignore */
     }
@@ -68,7 +68,7 @@ export function Layout() {
         <NavLink to="/" className="brand">
           <Logo />
           <div>
-            <div className="brand-name">Tripline</div>
+            <div className="brand-name">ContractRift</div>
             <div className="brand-tag">dependency drift</div>
           </div>
         </NavLink>
@@ -107,13 +107,22 @@ export function Layout() {
         <div className="topbar">
           <NavLink to="/" className="brand" style={{ padding: 0 }}>
             <Logo />
-            <span className="brand-name">Tripline</span>
+            <span className="brand-name">ContractRift</span>
           </NavLink>
           <button className="btn small" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
             Menu
           </button>
         </div>
         <main className="main" id="main">
+          {isDemoUser ? (
+            <div className="note" style={{ marginBottom: 18 }}>
+              <strong>Public demo (read-only).</strong> These monitors watch real public services. Run ContractRift yourself to monitor your
+              own APIs:{' '}
+              <a href="https://github.com/ahmedgcompany-cyber/contractrift" target="_blank" rel="noreferrer">
+                github.com/ahmedgcompany-cyber/contractrift
+              </a>
+            </div>
+          ) : null}
           <Outlet />
         </main>
       </div>

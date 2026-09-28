@@ -2,12 +2,13 @@
 
 ## Reporting
 
-Report vulnerabilities privately to the maintainers (contact to be defined — see PROJECT_STATUS.md).
-Do not open public issues for security problems.
+Please report vulnerabilities **privately** through GitHub:
+[Security → Report a vulnerability](https://github.com/ahmedgcompany-cyber/contractrift/security/advisories/new).
+Do not open public issues for security problems. We aim to acknowledge reports within 7 days.
 
 ## Threat model (summary)
 
-Tripline holds **credentials for third-party services** (API keys, bearer tokens, webhook URLs)
+ContractRift holds **credentials for third-party services** (API keys, bearer tokens, webhook URLs)
 and **makes outbound requests to user-configured URLs**. The main risks are therefore credential
 disclosure and server-side request forgery, followed by the usual web-application risks.
 
@@ -15,10 +16,12 @@ disclosure and server-side request forgery, followed by the usual web-applicatio
 
 | Area             | Control                                                                                                                                                                                                                                                                          | Where                                                                    |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| First-run setup  | Optional `SETUP_TOKEN` required to create the first admin (stops a stranger claiming a fresh public install); constant-time comparison                                                                                                                                           | `routes/auth.ts`                                                         |
+| Public demo      | `DEMO_MODE` account is a viewer that cannot change its password, create tokens or be locked out; demo monitors target public services only                                                                                                                                       | `services/demo.ts`                                                       |
 | Passwords        | argon2id (`@node-rs/argon2` defaults), 10–256 chars; constant-work path for unknown emails                                                                                                                                                                                       | `services/auth.ts`                                                       |
 | Brute force      | 10 logins/min per IP; 10 consecutive failures lock the account 15 min; global 600 req/min/IP                                                                                                                                                                                     | `routes/auth.ts`, `services/auth.ts`, `app.ts`                           |
 | Sessions         | 256-bit random token in httpOnly, SameSite=Lax, Secure (production) cookie; only SHA-256 stored; sliding expiry; deleted on logout; other sessions revoked on password change; all sessions revoked on disable/reset                                                             | `services/auth.ts`, `plugins/auth.ts`                                    |
-| CSRF             | Required custom header `X-Tripline-CSRF: 1` on unsafe methods + `Origin` must match `APP_URL`; no CORS enabled                                                                                                                                                                   | `plugins/auth.ts`                                                        |
+| CSRF             | Required custom header `X-ContractRift-CSRF: 1` on unsafe methods + `Origin` must match `APP_URL`; no CORS enabled                                                                                                                                                               | `plugins/auth.ts`                                                        |
 | AuthZ            | Role check on every route via `config.role`; API tokens are read-only (GET only), hashed, revocable, optional expiry                                                                                                                                                             | `plugins/auth.ts`, `services/tokens.ts`                                  |
 | Secrets at rest  | AES-256-GCM (Node `crypto`), random 96-bit IV, auth tag; key from `ENCRYPTION_KEY`                                                                                                                                                                                               | `lib/crypto.ts`                                                          |
 | Secret exposure  | Secrets are write-only in the API; response schemas whitelist fields; secret values redacted from stored response excerpts and error messages; pino redacts auth headers, cookies, passwords                                                                                     | `services/monitors.ts`, `routes/schemas.ts`, `probes/types.ts`, `app.ts` |

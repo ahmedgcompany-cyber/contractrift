@@ -134,13 +134,13 @@ describe('availability: incidents', () => {
 
     const delivered = await processOutbox(h.ctx);
     expect(delivered.sent).toBe(2);
-    const events = up.state.hooks.map((x) => x.headers['x-tripline-event']);
+    const events = up.state.hooks.map((x) => x.headers['x-contractrift-event']);
     expect(events).toEqual(expect.arrayContaining(['incident.opened', 'incident.resolved']));
     for (const req of up.state.hooks) {
-      const expected = `sha256=${hmacSha256('whsec-0123456789', `${req.headers['x-tripline-timestamp']}.${req.body}`)}`;
-      expect(req.headers['x-tripline-signature']).toBe(expected);
+      const expected = `sha256=${hmacSha256('whsec-0123456789', `${req.headers['x-contractrift-timestamp']}.${req.body}`)}`;
+      expect(req.headers['x-contractrift-signature']).toBe(expected);
     }
-    const payload = JSON.parse(up.state.hooks.find((x) => x.headers['x-tripline-event'] === 'incident.opened')?.body ?? '{}');
+    const payload = JSON.parse(up.state.hooks.find((x) => x.headers['x-contractrift-event'] === 'incident.opened')?.body ?? '{}');
     expect(payload).toMatchObject({ event: 'incident.opened', monitor: { id: m.id }, link: expect.stringContaining(`/monitors/${m.id}`) });
 
     const results = (await admin.get(`/monitors/${m.id}/results?limit=2`)).body.results;
@@ -196,7 +196,7 @@ describe('drift lifecycle', () => {
     expect(list.recent).toHaveLength(4);
 
     await processOutbox(h.ctx);
-    expect(up.state.hooks.map((x) => x.headers['x-tripline-event'])).toEqual(['drift.breaking']);
+    expect(up.state.hooks.map((x) => x.headers['x-contractrift-event'])).toEqual(['drift.breaking']);
 
     const accepted = await admin.post(`/drift/${open[0].id}/accept`);
     expect(accepted.body.event).toMatchObject({ status: 'accepted' });

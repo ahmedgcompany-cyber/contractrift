@@ -16,6 +16,12 @@ export type AppConfig = {
   sessionTtlHours: number;
   /** Per-IP limit for login, setup and password-change requests. */
   authRateLimitPerMinute: number;
+  /** When set, first-run setup requires this token (protects fresh public deployments). */
+  setupToken: string | undefined;
+  /** Public read-only demo account + demo monitors. */
+  demoMode: boolean;
+  demoEmail: string;
+  demoPassword: string;
   cookieSecure: boolean;
   trustProxy: boolean;
   logLevel: string;
@@ -78,7 +84,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     throw new ConfigError(`NODE_ENV must be development, production or test, got "${nodeEnv}"`);
   }
   const port = int('PORT', env.PORT, 3000, 1, 65535);
-  const appUrl = (env.APP_URL ?? `http://localhost:${port}`).replace(/\/+$/, '');
+  // RENDER_EXTERNAL_URL is set automatically on Render, so APP_URL can be left empty there.
+  const appUrl = (env.APP_URL || env.RENDER_EXTERNAL_URL || `http://localhost:${port}`).replace(/\/+$/, '');
   try {
     new URL(appUrl);
   } catch {
@@ -96,6 +103,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     pgliteDataDir: env.PGLITE_DATA_DIR ?? path.resolve(import.meta.dirname, '../../data/pglite'),
     encryptionKey,
     decryptionKeys: [encryptionKey, ...parsePreviousKeys(env.ENCRYPTION_KEY_PREVIOUS)],
+    setupToken: env.SETUP_TOKEN || undefined,
+    demoMode: bool(env.DEMO_MODE, false),
+    demoEmail: env.DEMO_EMAIL ?? 'demo@contractrift.dev',
+    demoPassword: env.DEMO_PASSWORD ?? 'contractrift-demo',
     authRateLimitPerMinute: int('AUTH_RATE_LIMIT_PER_MINUTE', env.AUTH_RATE_LIMIT_PER_MINUTE, 10, 1, 10_000),
     sessionTtlHours: int('SESSION_TTL_HOURS', env.SESSION_TTL_HOURS, 168, 1, 24 * 90),
     cookieSecure: bool(env.COOKIE_SECURE, nodeEnv === 'production'),

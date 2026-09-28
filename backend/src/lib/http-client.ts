@@ -172,7 +172,7 @@ export async function outboundRequest(req: OutboundRequest): Promise<OutboundRes
       origin: url.origin,
       path: `${url.pathname}${url.search}`,
       method: (req.method ?? 'GET') as Dispatcher.HttpMethod,
-      headers: { 'user-agent': 'Tripline/0.2 (+dependency monitor)', ...req.headers },
+      headers: { 'user-agent': 'ContractRift/0.3 (+dependency monitor)', ...req.headers },
       body: req.body,
       signal,
       headersTimeout: req.timeoutMs,

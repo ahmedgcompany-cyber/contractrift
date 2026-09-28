@@ -15,8 +15,8 @@ prebuilt.
 ## 1. Get the code and install
 
 ```bash
-git clone <your-repo-url> tripline
-cd tripline
+git clone <your-repo-url> contractrift
+cd contractrift
 npm ci
 ```
 
@@ -30,7 +30,7 @@ npm run gen-key
 Paste the printed key into `ENCRYPTION_KEY=` in `.env`. **Back this key up.** It encrypts
 stored API keys and webhook URLs; if it is lost those secrets must be re-entered.
 
-Optional: set `DATABASE_URL=postgres://user:pass@host:5432/tripline` to use PostgreSQL. Every
+Optional: set `DATABASE_URL=postgres://user:pass@host:5432/contractrift` to use PostgreSQL. Every
 variable is explained in [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md#environment-variables).
 
 ## 3. Build and start
@@ -62,7 +62,7 @@ Open `http://localhost:5173`. For the CSRF origin check to accept requests from 
 
 ## Monitoring internal services
 
-By default Tripline refuses to connect to private, loopback and link-local addresses (SSRF
+By default ContractRift refuses to connect to private, loopback and link-local addresses (SSRF
 protection). If you intentionally monitor services on your private network, set
 `ALLOW_PRIVATE_TARGETS=true` and read [SECURITY.md](SECURITY.md#ssrf) first.
 

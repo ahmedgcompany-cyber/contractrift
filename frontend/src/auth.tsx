@@ -6,6 +6,10 @@ type AuthState = {
   user: User | null;
   loading: boolean;
   needsSetup: boolean;
+  setupTokenRequired: boolean;
+  /** Public demo credentials when the server runs with DEMO_MODE. */
+  demo: { email: string; password: string } | null;
+  isDemoUser: boolean;
   refresh: () => Promise<void>;
   can: (role: Role) => boolean;
 };
@@ -15,7 +19,11 @@ const RANK: Record<Role, number> = { viewer: 0, editor: 1, admin: 2 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
-  const setup = useQuery({ queryKey: ['setup-status'], queryFn: () => api.get<{ needsSetup: boolean }>('/auth/setup-status') });
+  const setup = useQuery({
+    queryKey: ['setup-status'],
+    queryFn: () =>
+      api.get<{ needsSetup: boolean; setupTokenRequired: boolean; demo?: { email: string; password: string } }>('/auth/setup-status'),
+  });
   const me = useQuery({
     queryKey: ['me'],
     queryFn: async () => {
@@ -34,6 +42,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     loading: setup.isLoading || (setup.data?.needsSetup === false && me.isLoading),
     needsSetup: setup.data?.needsSetup ?? false,
+    setupTokenRequired: setup.data?.setupTokenRequired ?? false,
+    demo: setup.data?.demo ?? null,
+    isDemoUser: !!user && !!setup.data?.demo && user.email.toLowerCase() === setup.data.demo.email.toLowerCase(),
     refresh: async () => {
       await qc.invalidateQueries({ queryKey: ['setup-status'] });
       await qc.invalidateQueries({ queryKey: ['me'] });

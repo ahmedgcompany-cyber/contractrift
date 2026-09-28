@@ -1,11 +1,11 @@
 # Project Status
 
 Last updated: 2026-09-28 · Version **0.2.0**
-Repository: https://github.com/ahmedgcompany-cyber/tripline (private) · Local copies: `C:\Users\AHMED\projects\tripline`, `C:\Users\AHMED\OneDrive\Desktop\Project_2026\tripline`
+Repository: https://github.com/ahmedgcompany-cyber/contractrift (private) · Local copies: `C:\Users\AHMED\projects\contractrift`, `C:\Users\AHMED\OneDrive\Desktop\Project_2026\contractrift`
 
 ## PROJECT OVERVIEW
 
-Tripline is a self-hosted monitor for external dependencies (HTTP JSON APIs, LLM APIs, MCP
+ContractRift is a self-hosted monitor for external dependencies (HTTP JSON APIs, LLM APIs, MCP
 servers). It detects outages **and silent structural drift**, with incidents, notifications, a CI
 gate, users/roles and an audit log. Chosen after documented research (`research/`).
 
@@ -61,7 +61,7 @@ consecutive reruns afterwards (CI retries once); cause unknown.
 | In-memory rate limits                                | Per-process store                                                                                   | Documented                                                                   | Single instance or sticky LB                         | Shared store                    |
 | PGlite single-connection                             | PGlite design                                                                                       | Fine for single node                                                         | PostgreSQL                                           | —                               |
 | Local tooling quirks (this PC)                       | Windows Application Control blocks unsigned `.exe` (Biome); gstack browse v0.16 unstable on Windows | Project uses ESLint/Prettier; QA done with the built-in browser + Playwright | —                                                    | Upgrade gstack (1.91 available) |
-| Name "Tripline" not cleared                          | Similar names exist                                                                                 | Working name                                                                 | —                                                    | Name search                     |
+| Name "ContractRift" not cleared                      | Similar names exist                                                                                 | Working name                                                                 | —                                                    | Name search                     |
 
 ## SECURITY NOTES
 
@@ -83,7 +83,7 @@ heuristic ReDoS guard, no MFA, in-memory rate limits.
 | Clean-clone packaging check                                                                                                                                                 | local                          | pass (v0.1.0)                                                             |
 | Performance (200 monitors × 30 results)                                                                                                                                     | local                          | `/monitors` median 31 ms (unpaginated, pre-0.2; now ≤ 200 items per page) |
 
-CI runs: https://github.com/ahmedgcompany-cyber/tripline/actions
+CI runs: https://github.com/ahmedgcompany-cyber/contractrift/actions
 
 ## DOCUMENTATION STATUS
 
@@ -103,7 +103,7 @@ Node.js; PostgreSQL (optional). Monitored services and notification targets are 
 ## REQUIRES USER ACTION
 
 1. **License decision** — MIT is provisional (AGPL-3.0/BSL if you want to protect a commercial offering).
-2. **Name clearance** for "Tripline".
+2. **Name clearance** for "ContractRift".
 3. **Security contact** in SECURITY.md.
 4. **Repository visibility** — created **private**; make it public in GitHub settings if intended.
 5. Optional: run `npm run test:live -w backend` with `LIVE_OPENAI_API_KEY` / `LIVE_ANTHROPIC_API_KEY`.

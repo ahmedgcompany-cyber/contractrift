@@ -1,6 +1,8 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { Type } from 'typebox';
+import { AppError } from '../lib/errors.js';
 import { actorOf } from '../plugins/auth.js';
+import { isDemoUser } from '../services/demo.js';
 import { PASSWORD_MAX, PASSWORD_MIN } from '../services/auth.js';
 import type { Ctx } from '../services/context.js';
 import { createToken, listTokens, revokeToken } from '../services/tokens.js';
@@ -129,6 +131,7 @@ export const userRoutes =
         },
       },
       async (req, reply) => {
+        if (isDemoUser(ctx, req.auth!.user)) throw new AppError('FORBIDDEN', 'The shared demo account cannot create API tokens.');
         const { token, ...apiToken } = await createToken(ctx, req.auth!.user.id, req.body, actorOf(req));
         return reply.status(201).send({ token, apiToken: apiToken as never });
       },

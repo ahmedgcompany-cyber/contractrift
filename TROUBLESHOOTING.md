@@ -21,7 +21,7 @@ Each entry: **Problem · Cause · Fix.** Logs are JSON (pino); every API error i
 
 **`ACCOUNT_LOCKED`** · 10 failed attempts · wait 15 min, or an admin resets the password (also unlocks), or `npm run reset-password -w backend -- <email>`.
 
-**Every write returns `CSRF_REJECTED`** · (a) client doesn't send `X-Tripline-CSRF: 1`; (b) the browser `Origin` differs from `APP_URL` (e.g. Vite on :5173 while `APP_URL` is :3000, or a proxy hostname) · fix the header / set `APP_URL` to the URL users actually open.
+**Every write returns `CSRF_REJECTED`** · (a) client doesn't send `X-ContractRift-CSRF: 1`; (b) the browser `Origin` differs from `APP_URL` (e.g. Vite on :5173 while `APP_URL` is :3000, or a proxy hostname) · fix the header / set `APP_URL` to the URL users actually open.
 
 **Logged out immediately / cookie not stored** · `COOKIE_SECURE=true` over plain HTTP · use HTTPS, or `COOKIE_SECURE=false` for local testing only.
 
@@ -35,7 +35,7 @@ Each entry: **Problem · Cause · Fix.** Logs are JSON (pino); every API error i
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `BLOCKED_TARGET`             | URL resolves to a private/loopback address. Intentional? set `ALLOW_PRIVATE_TARGETS=true` (read SECURITY.md).                                                                    |
 | `TIMEOUT`                    | No full response within `timeoutMs`. Raise the timeout or check the upstream.                                                                                                    |
-| `DNS` / `CONNECTION` / `TLS` | Name resolution, TCP, or certificate problems from the Tripline host.                                                                                                            |
+| `DNS` / `CONNECTION` / `TLS` | Name resolution, TCP, or certificate problems from the ContractRift host.                                                                                                        |
 | `HTTP_STATUS`                | Status not in `expectedStatus` (empty = 2xx). A 3xx means redirects are off.                                                                                                     |
 | `AUTH`                       | 401/403 — key expired/rotated or wrong header. Re-enter the secret.                                                                                                              |
 | `RATE_LIMITED`               | Provider returned 429; increase the interval.                                                                                                                                    |

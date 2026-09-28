@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * CI deploy gate for Tripline. Exits 0 when the gate passes, 1 when it fails, 2 on usage/connection errors.
+ * CI deploy gate for ContractRift. Exits 0 when the gate passes, 1 when it fails, 2 on usage/connection errors.
  *
- *   TRIPLINE_URL=https://tripline.example.com TRIPLINE_TOKEN=tl_... \
- *     node scripts/tripline-gate.mjs [--tags payments,search] [--fail-on down,breaking]
+ *   CONTRACTRIFT_URL=https://contractrift.example.com CONTRACTRIFT_TOKEN=cr_... \
+ *     node scripts/contractrift-gate.mjs [--tags payments,search] [--fail-on down,breaking]
  *
  * --fail-on accepts any of: down, unknown, breaking, warning (default: down,breaking).
  * Requires Node.js 18+. No dependencies.
@@ -42,13 +42,15 @@ function getJson(url, headers) {
 
 async function main() {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log('Usage: TRIPLINE_URL=... TRIPLINE_TOKEN=... node scripts/tripline-gate.mjs [--tags a,b] [--fail-on down,breaking]');
+    console.log(
+      'Usage: CONTRACTRIFT_URL=... CONTRACTRIFT_TOKEN=... node scripts/contractrift-gate.mjs [--tags a,b] [--fail-on down,breaking]',
+    );
     return 0;
   }
-  const base = (process.env.TRIPLINE_URL ?? '').replace(/\/+$/, '');
-  const token = process.env.TRIPLINE_TOKEN ?? '';
+  const base = (process.env.CONTRACTRIFT_URL ?? '').replace(/\/+$/, '');
+  const token = process.env.CONTRACTRIFT_TOKEN ?? '';
   if (!base || !token) {
-    console.error('TRIPLINE_URL and TRIPLINE_TOKEN must be set.');
+    console.error('CONTRACTRIFT_URL and CONTRACTRIFT_TOKEN must be set.');
     return 2;
   }
   const params = new URLSearchParams();
@@ -59,7 +61,7 @@ async function main() {
   try {
     res = await getJson(`${base}/api/v1/gate?${params}`, { authorization: `Bearer ${token}`, accept: 'application/json' });
   } catch (err) {
-    console.error(`Cannot reach Tripline at ${base}: ${err.code ?? err.message}`);
+    console.error(`Cannot reach ContractRift at ${base}: ${err.code ?? err.message}`);
     return 2;
   }
   const { status, body } = res;
@@ -74,10 +76,10 @@ async function main() {
     return 2;
   }
   if (body.pass) {
-    console.log(`Tripline gate PASSED — ${body.evaluated} monitor(s), ${scope}, failOn [${body.failOn.join(', ')}].`);
+    console.log(`ContractRift gate PASSED — ${body.evaluated} monitor(s), ${scope}, failOn [${body.failOn.join(', ')}].`);
     return 0;
   }
-  console.error(`Tripline gate FAILED — ${scope}, failOn [${body.failOn.join(', ')}]:`);
+  console.error(`ContractRift gate FAILED — ${scope}, failOn [${body.failOn.join(', ')}]:`);
   for (const f of body.failures) console.error(`  ✗ ${f.name}: ${f.reason}  (${base}/monitors/${f.monitorId})`);
   return 1;
 }

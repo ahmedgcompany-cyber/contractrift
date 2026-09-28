@@ -1,0 +1,41 @@
+# Render Blueprint: ContractRift + PostgreSQL 17.
+# One-click: https://render.com/deploy?repo=https://github.com/ahmedgcompany-cyber/contractrift
+# Cost (Sept 2026 list prices): web 0.5c-512mb ≈ $7/mo + Postgres 0.1c-256mb ≈ $6/mo.
+services:
+  - type: web
+    name: contractrift
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: 0.5c-512mb
+    healthCheckPath: /readyz
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: contractrift-db
+          property: connectionString
+      # Random base64 256-bit values, generated once by Render. Back up ENCRYPTION_KEY.
+      - key: ENCRYPTION_KEY
+        generateValue: true
+      # Required to create the first admin account (find it under Environment in the Render dashboard).
+      - key: SETUP_TOKEN
+        generateValue: true
+      - key: NODE_ENV
+        value: production
+      - key: COOKIE_SECURE
+        value: 'true'
+      - key: TRUST_PROXY
+        value: 'true'
+      - key: ALLOW_PRIVATE_TARGETS
+        value: 'false'
+      # "true" = public read-only demo account + demo monitors. Use "false" for a private install.
+      - key: DEMO_MODE
+        sync: false
+
+databases:
+  - name: contractrift-db
+    plan: 0.1c-256mb
+    postgresMajorVersion: '17'
+    databaseName: contractrift
+    user: contractrift
+    # Only services in this Render account can connect.
+    ipAllowList: []

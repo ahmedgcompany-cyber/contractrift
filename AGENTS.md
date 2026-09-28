@@ -1,4 +1,4 @@
-# Tripline — instructions for AI coding assistants (AGENTS.md mirror of CLAUDE.md)
+# ContractRift — instructions for AI coding assistants (AGENTS.md mirror of CLAUDE.md)
 
 Read these before changing code:
 

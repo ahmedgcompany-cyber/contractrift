@@ -1,4 +1,4 @@
-# Tripline — instructions for AI coding assistants
+# ContractRift — instructions for AI coding assistants
 
 Read these before changing code:
 

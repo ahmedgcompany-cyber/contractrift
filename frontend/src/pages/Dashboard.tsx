@@ -46,8 +46,8 @@ export function DashboardPage() {
               ) : null
             }
           >
-            Point Tripline at a REST endpoint, an LLM API or an MCP server. It learns the response structure from the first checks and tells
-            you when it goes down or silently changes.
+            Point ContractRift at a REST endpoint, an LLM API or an MCP server. It learns the response structure from the first checks and
+            tells you when it goes down or silently changes.
           </Empty>
         </div>
       </>

@@ -23,7 +23,7 @@ import { userRoutes } from './routes/users.js';
 import type { Ctx } from './services/context.js';
 
 export const API_PREFIX = '/api/v1';
-export const VERSION = '0.2.0';
+export const VERSION = '0.3.0';
 
 const REDACT = [
   'req.headers.authorization',
@@ -85,16 +85,16 @@ export async function buildApp(config: AppConfig, database: Database, opts: { lo
     openapi: {
       openapi: '3.1.0',
       info: {
-        title: 'Tripline API',
+        title: 'ContractRift API',
         version: VERSION,
         description:
-          'Self-hosted dependency drift monitor. Authenticate with the session cookie (browser; state-changing requests need header `X-Tripline-CSRF: 1`) or a read-only bearer API token.',
+          'Self-hosted dependency drift monitor. Authenticate with the session cookie (browser; state-changing requests need header `X-ContractRift-CSRF: 1`) or a read-only bearer API token.',
       },
       servers: [{ url: '/' }],
       components: {
         securitySchemes: {
-          session: { type: 'apiKey', in: 'cookie', name: 'tripline_session' },
-          token: { type: 'http', scheme: 'bearer', description: 'Read-only API token (tl_…)' },
+          session: { type: 'apiKey', in: 'cookie', name: 'contractrift_session' },
+          token: { type: 'http', scheme: 'bearer', description: 'Read-only API token (cr_…)' },
         },
       },
       security: [{ session: [] }, { token: [] }],

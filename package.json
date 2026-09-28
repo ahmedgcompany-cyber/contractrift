@@ -1,9 +1,9 @@
 {
-  "name": "tripline",
-  "version": "0.2.0",
+  "name": "contractrift",
+  "version": "0.3.0",
   "private": true,
   "description": "Self-hosted monitor that detects when the REST APIs, LLM APIs and MCP servers you depend on go down or silently change.",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "type": "module",
   "engines": {
     "node": ">=22.12"
@@ -28,7 +28,7 @@
     "db:migrate": "npm run db:migrate -w backend",
     "openapi": "npm run openapi -w backend",
     "gen-key": "node scripts/gen-key.mjs",
-    "gate": "node scripts/tripline-gate.mjs"
+    "gate": "node scripts/contractrift-gate.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -38,5 +38,22 @@
     "prettier": "^3.9.9",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.70.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ahmedgcompany-cyber/contractrift.git"
+  },
+  "homepage": "https://github.com/ahmedgcompany-cyber/contractrift",
+  "keywords": [
+    "api-monitoring",
+    "schema-drift",
+    "contract-testing",
+    "mcp",
+    "llm",
+    "observability",
+    "self-hosted",
+    "synthetic-monitoring",
+    "api-drift",
+    "model-context-protocol"
+  ]
 }

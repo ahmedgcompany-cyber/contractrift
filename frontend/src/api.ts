@@ -1,4 +1,4 @@
-/** Thin typed client for the Tripline API. Same-origin; session cookie + CSRF header. */
+/** Thin typed client for the ContractRift API. Same-origin; session cookie + CSRF header. */
 
 export class ApiError extends Error {
   constructor(
@@ -14,7 +14,7 @@ export class ApiError extends Error {
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const headers: Record<string, string> = { accept: 'application/json' };
-  if (method !== 'GET') headers['x-tripline-csrf'] = '1';
+  if (method !== 'GET') headers['x-contractrift-csrf'] = '1';
   if (body !== undefined) headers['content-type'] = 'application/json';
   let res: Response;
   try {
@@ -25,7 +25,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
-    throw new ApiError(0, 'NETWORK', 'Cannot reach the Tripline server. Check your connection.');
+    throw new ApiError(0, 'NETWORK', 'Cannot reach the ContractRift server. Check your connection.');
   }
   if (res.status === 204) return undefined as T;
   const data = await res.json().catch(() => null);

@@ -6,7 +6,6 @@ const APP_PORT = 3310;
 const UPSTREAM_PORT = 4011;
 
 export default defineConfig({
-  testDir: 'tests/e2e',
   fullyParallel: false,
   workers: 1,
   retries: process.env.CI ? 1 : 0,
@@ -18,8 +17,10 @@ export default defineConfig({
     ...(process.env.PW_CHANNEL ? { channel: process.env.PW_CHANNEL } : {}),
   },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] }, grepInvert: /@mobile/ },
-    { name: 'mobile', use: { ...devices['Pixel 7'] }, grep: /@mobile/ },
+    { name: 'desktop', testDir: 'tests/e2e', use: { ...devices['Desktop Chrome'] }, grepInvert: /@mobile/ },
+    { name: 'mobile', testDir: 'tests/e2e', use: { ...devices['Pixel 7'] }, grep: /@mobile/ },
+    // Marketing screenshots: SCREENSHOTS=1 npx playwright test --project=screenshots
+    ...(process.env.SCREENSHOTS ? [{ name: 'screenshots', testDir: 'tests/screenshots', use: { ...devices['Desktop Chrome'] } }] : []),
   ],
   webServer: [
     {

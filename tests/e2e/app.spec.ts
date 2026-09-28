@@ -16,7 +16,7 @@ async function login(page: Page, email = ADMIN.email, password = ADMIN.password,
   // Lets a test run on its own (e.g. `--project=mobile`) against a fresh server.
   const status = await (await page.request.get('/api/v1/auth/setup-status')).json();
   if (status.needsSetup) {
-    await page.request.post('/api/v1/auth/setup', { data: ADMIN, headers: { 'x-tripline-csrf': '1' } });
+    await page.request.post('/api/v1/auth/setup', { data: ADMIN, headers: { 'x-contractrift-csrf': '1' } });
     await page.context().clearCookies();
   }
   await page.goto('/login');
@@ -149,7 +149,7 @@ test('API token is shown once and works for the CI gate', async ({ page, request
   await page.getByLabel('Token name').fill('ci');
   await page.getByRole('button', { name: 'Create token' }).click();
   const token = (await page.locator('.secret-token').textContent())?.trim() ?? '';
-  expect(token).toMatch(/^tl_/);
+  expect(token).toMatch(/^cr_/);
   const gate = await request.get('/api/v1/gate?tags=payments', { headers: { authorization: `Bearer ${token}` } });
   expect(gate.status()).toBe(200);
   expect(await gate.json()).toMatchObject({ pass: true, evaluated: 1 });
@@ -194,7 +194,7 @@ test('secret URL parameter is write-only; monitor list paginates', async ({ page
   // 26+ monitors → more than one page of 25
   for (let i = 0; i < 26; i++) {
     const r = await page.request.post('/api/v1/monitors', {
-      headers: { 'x-tripline-csrf': '1' },
+      headers: { 'x-contractrift-csrf': '1' },
       data: { name: `bulk-${String(i).padStart(2, '0')}`, kind: 'http', enabled: false, config: { url: `https://example.com/${i}` } },
     });
     expect(r.status()).toBe(201);

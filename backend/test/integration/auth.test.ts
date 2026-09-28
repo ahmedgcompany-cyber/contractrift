@@ -14,13 +14,13 @@ afterEach(async () => {
 describe('first-run setup', () => {
   it('reports setup status and allows exactly one setup', async () => {
     const c = new Client(h.app);
-    expect((await c.get('/auth/setup-status')).body).toEqual({ needsSetup: true });
+    expect((await c.get('/auth/setup-status')).body).toEqual({ needsSetup: true, setupTokenRequired: false });
     const res = await c.post('/auth/setup', ADMIN);
     expect(res.status).toBe(201);
     expect(res.body.user).toMatchObject({ email: ADMIN.email, role: 'admin' });
     expect(res.body.user.passwordHash).toBeUndefined();
-    expect(String(res.headers['set-cookie'])).toMatch(/tripline_session=.+HttpOnly.+SameSite=Lax/i);
-    expect((await c.get('/auth/setup-status')).body).toEqual({ needsSetup: false });
+    expect(String(res.headers['set-cookie'])).toMatch(/contractrift_session=.+HttpOnly.+SameSite=Lax/i);
+    expect((await c.get('/auth/setup-status')).body).toEqual({ needsSetup: false, setupTokenRequired: false });
     const again = await new Client(h.app).post('/auth/setup', { ...ADMIN, email: 'x@example.com' });
     expect(again.status).toBe(409);
     expect(again.body.error.code).toBe('SETUP_ALREADY_DONE');
@@ -68,7 +68,7 @@ describe('login / logout / sessions', () => {
       await h.app.inject({
         method: 'POST',
         url: '/api/v1/auth/login',
-        headers: { 'x-tripline-csrf': '1', 'x-forwarded-for': `10.0.0.${i}` },
+        headers: { 'x-contractrift-csrf': '1', 'x-forwarded-for': `10.0.0.${i}` },
         payload: { email: ADMIN.email, password: 'wrong-password' },
         remoteAddress: `10.0.1.${i}`,
       });
@@ -76,7 +76,7 @@ describe('login / logout / sessions', () => {
     const res = await h.app.inject({
       method: 'POST',
       url: '/api/v1/auth/login',
-      headers: { 'x-tripline-csrf': '1' },
+      headers: { 'x-contractrift-csrf': '1' },
       payload: { email: ADMIN.email, password: ADMIN.password },
       remoteAddress: '10.0.2.1',
     });
@@ -245,7 +245,7 @@ describe('API tokens', () => {
     const created = await admin.post('/tokens', { name: 'ci' });
     expect(created.status).toBe(201);
     const token: string = created.body.token;
-    expect(token).toMatch(/^tl_/);
+    expect(token).toMatch(/^cr_/);
     expect(JSON.stringify((await admin.get('/tokens')).body)).not.toContain(token);
 
     const ci = new Client(h.app);
@@ -262,7 +262,7 @@ describe('API tokens', () => {
   it('expired tokens are rejected and garbage tokens get 401', async () => {
     const admin = await setupAdmin(h.app);
     const ci = new Client(h.app);
-    ci.bearer = 'tl_notarealtoken';
+    ci.bearer = 'cr_notarealtoken';
     expect((await ci.get('/monitors')).status).toBe(401);
     const created = await admin.post('/tokens', { name: 'short', expiresInDays: 1 });
     const { apiTokens } = await import('../../src/db/schema.js');

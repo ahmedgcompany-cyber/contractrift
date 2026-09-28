@@ -64,7 +64,7 @@ export class Client {
     const headers: Record<string, string> = { ...extra.headers };
     if (this.cookie) headers.cookie = this.cookie;
     if (this.bearer) headers.authorization = `Bearer ${this.bearer}`;
-    if (extra.csrf !== false && method !== 'GET') headers['x-tripline-csrf'] = '1';
+    if (extra.csrf !== false && method !== 'GET') headers['x-contractrift-csrf'] = '1';
     const res = await this.app.inject({
       method,
       url: `/api/v1${url}`,

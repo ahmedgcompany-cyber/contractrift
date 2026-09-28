@@ -1,6 +1,6 @@
 # User Pain Points (selected problem)
 
-Source IDs: [SOURCES.md](SOURCES.md). Each pain point notes the evidence and how Tripline
+Source IDs: [SOURCES.md](SOURCES.md). Each pain point notes the evidence and how ContractRift
 addresses it (or doesn't).
 
 | #   | Pain point                                                                                     | Evidence                                                                     | Addressed in MVP?                                                                                                                                                             |
@@ -13,7 +13,7 @@ addresses it (or doesn't).
 | P6  | Uptime tools need a hand-written assertion per field; nobody writes them for 40 fields.        | S16–S19                                                                      | **Yes** — baseline is inferred automatically from real responses; optional JSON Schema and JSONPath assertions for the fields you care about                                  |
 | P7  | SaaS monitors need your production API keys.                                                   | Inference from S7/S21 being SaaS-only                                        | **Yes** — self-hosted; secret headers encrypted at rest (AES-256-GCM) and never returned by the API                                                                           |
 | P8  | Too many alerts / no severity.                                                                 | S7 (severity classification highlighted as differentiator)                   | **Yes** — drift severity, incident threshold (consecutive failures), one alert per incident open/resolve                                                                      |
-| P9  | "Can I deploy right now, or is an upstream broken?"                                            | S7 gap: "No tool combines continuous monitoring with CI/CD deployment gates" | **Yes** — `GET /api/v1/gate` with API token + `scripts/tripline-gate.mjs` exits non-zero                                                                                      |
+| P9  | "Can I deploy right now, or is an upstream broken?"                                            | S7 gap: "No tool combines continuous monitoring with CI/CD deployment gates" | **Yes** — `GET /api/v1/gate` with API token + `scripts/contractrift-gate.mjs` exits non-zero                                                                                  |
 | P10 | Webhook delivery visibility                                                                    | S24–S26                                                                      | **No** — out of scope (non-goal)                                                                                                                                              |
 | P11 | Model deprecation calendars                                                                    | S31–S33                                                                      | **No** — out of scope; see ROADMAP                                                                                                                                            |
 

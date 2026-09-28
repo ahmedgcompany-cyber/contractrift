@@ -6,7 +6,7 @@ import { audit } from './audit.js';
 import type { UserRow } from './auth.js';
 import type { Actor, Ctx } from './context.js';
 
-export const TOKEN_PREFIX = 'tl_';
+export const TOKEN_PREFIX = 'cr_';
 
 const publicColumns = {
   id: apiTokens.id,

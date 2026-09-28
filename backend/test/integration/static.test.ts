@@ -8,7 +8,7 @@ let h: Harness;
 let dir: string;
 
 beforeAll(async () => {
-  dir = mkdtempSync(path.join(os.tmpdir(), 'tripline-dist-'));
+  dir = mkdtempSync(path.join(os.tmpdir(), 'contractrift-dist-'));
   mkdirSync(path.join(dir, 'assets'));
   writeFileSync(path.join(dir, 'index.html'), '<!doctype html><div id="root"></div>');
   writeFileSync(path.join(dir, 'assets', 'app-abc.css'), 'body{}');

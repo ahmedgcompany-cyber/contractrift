@@ -1,11 +1,12 @@
-# Tripline — Product Specification
+# ContractRift — Product Specification
 
-> Working name. Several unrelated GitHub projects use similar names ("Driftline", "Plumbline");
-> "Tripline" has **not** been trademark-cleared. See PROJECT_STATUS.md → Requires user action.
+> **Name.** Originally "Tripline" (renamed 2026-09-28: similar names were in use). "ContractRift" had no
+> GitHub repositories, npm package, web presence, or registered `.com`/`.dev` domain at the time of the
+> check. This is not a formal trademark clearance — do one before commercial launch.
 
 ## 1. Concept
 
-Tripline is a **self-hosted monitor for the external dependencies your application relies on**
+ContractRift is a **self-hosted monitor for the external dependencies your application relies on**
 — REST APIs, LLM APIs and MCP tool servers. It continuously sends real, authenticated probe
 requests and tells you not only when a dependency is **down**, but when it has **silently
 changed**: a field disappeared, a type changed, the provider now reports a different model
@@ -55,7 +56,7 @@ without your API keys leaving your infrastructure."
 5. **Drift:** a response whose structure deviates from the baseline creates a drift event
    (breaking / warning / info) and notifies. The user **accepts** (baseline updated) or
    **dismisses** (this exact change is muted).
-6. **Gate:** CI calls `GET /api/v1/gate` with an API token (or runs `scripts/tripline-gate.mjs`).
+6. **Gate:** CI calls `GET /api/v1/gate` with an API token (or runs `scripts/contractrift-gate.mjs`).
 
 ## 7. MVP scope (v0.1)
 

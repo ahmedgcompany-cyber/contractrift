@@ -1,87 +1,126 @@
-# Tripline
+<p align="center">
+  <img src="assets/logo.svg" width="72" height="72" alt="ContractRift logo" />
+</p>
 
-**Self-hosted monitoring for the external dependencies your application relies on — REST APIs,
-LLM APIs and MCP tool servers.** Tripline sends real, authenticated probe requests on a schedule
-and tells you not only when a dependency is **down**, but when it has **silently changed**: a
-field disappeared, a type changed, the provider now reports a different model behind your
-alias, or an MCP server dropped a tool or added a required parameter.
+<h1 align="center">ContractRift</h1>
 
-Your API keys stay on your infrastructure: secrets are encrypted at rest and never returned by
-the API.
+<p align="center">
+  <strong>Know when the APIs, LLMs and MCP servers you depend on go down — or silently change.</strong><br />
+  Self-hosted · open source · your API keys never leave your servers.
+</p>
 
-> Status: **v0.2.0 — functional, CI-verified MVP** (tests on PGlite and PostgreSQL 17, docker-compose stack
-> exercised in CI, probes live-tested against GitHub, two real MCP servers and a real OpenAI-compatible LLM
-> server). Not yet load-tested or deployed anywhere. Details: [PROJECT_STATUS.md](PROJECT_STATUS.md).
+<p align="center">
+  <a href="https://github.com/ahmedgcompany-cyber/contractrift/actions/workflows/ci.yml"><img src="https://github.com/ahmedgcompany-cyber/contractrift/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/ahmedgcompany-cyber/contractrift/releases"><img src="https://img.shields.io/github/v/release/ahmedgcompany-cyber/contractrift?sort=semver" alt="Release" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License: AGPL-3.0" /></a>
+  <a href="https://github.com/ahmedgcompany-cyber/contractrift/pkgs/container/contractrift"><img src="https://img.shields.io/badge/docker-ghcr.io-2496ED?logo=docker&logoColor=white" alt="Docker image" /></a>
+</p>
+
+<p align="center">
+  <a href="https://ahmedgcompany-cyber.github.io/contractrift/">Website</a> ·
+  <a href="#quick-start">Quick start</a> ·
+  <a href="USER_GUIDE.md">User guide</a> ·
+  <a href="API_DOCUMENTATION.md">API</a> ·
+  <a href="ROADMAP.md">Roadmap</a>
+</p>
+
+![ContractRift dashboard: breaking drift, a model change and an outage](assets/screenshots/dashboard-light.png)
 
 ## Why
 
-Upstream APIs change without you changing anything. Unit tests use frozen mocks, integration
-tests run only on pull requests, uptime monitors only check the status code, and the SaaS
-drift monitors that exist need your production credentials. Research and evidence:
-[research/PROBLEM_RESEARCH.md](research/PROBLEM_RESEARCH.md).
+Third-party APIs change without you changing anything. A field disappears, a type changes, validation
+tightens, an LLM alias moves to a new model, an MCP server drops a tool. Unit tests use frozen mocks,
+integration tests run only on pull requests, and uptime monitors only see `200 OK`. Teams find out from customers.
 
-## What it does (implemented)
+The monitoring tools that do catch this are SaaS products that need your production API keys.
+**ContractRift runs on your infrastructure** and watches the _contract_, not just the status code.
 
-- **Three probe kinds:** HTTP(S) JSON endpoints; LLM APIs in OpenAI-compatible (Chat Completions)
-  or Anthropic (Messages) format; MCP servers over Streamable HTTP — both the 2026-07-28
-  stateless protocol and older initialize-based servers, auto-detected.
-- **Automatic structural baseline** learned from the first N successful responses; later
-  responses are diffed and classified as **breaking** (field removed, type changed), **warning**
-  (field became null, model changed) or **info** (field added).
-- **Accept / dismiss workflow** for drift, ignored paths, baseline reset.
-- **Assertions:** status codes, latency, JSONPath subset, JSON Schema, LLM output checks, MCP
-  expected tools and a test tool call.
-- **Incidents** after N consecutive failures; resolved on the next success.
-- **Notifications:** HMAC-signed webhooks and Slack, with retries and a delivery log.
-- **Key rotation** (`ENCRYPTION_KEY_PREVIOUS`), **secret URL parameters**, paginated monitor list.
-- **CI deploy gate:** `GET /api/v1/gate` + `scripts/tripline-gate.mjs` (exit code 0/1/2).
-- **Users & roles** (viewer / editor / admin), read-only API tokens, audit log.
-- **Security:** argon2id, server-side sessions, CSRF header, lockout, rate limits, SSRF guard,
-  AES-256-GCM secrets, strict CSP. Details: [SECURITY.md](SECURITY.md).
+## What it does
 
-## Quick start (local, no database server needed)
+|                        |                                                                                                                                                                                                               |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **REST / JSON APIs**   | Learns the response structure from scheduled probes. Removed or re-typed fields → **breaking**; newly-null → **warning**; new fields → **info**. Plus status, latency, JSONPath and JSON Schema assertions.   |
+| **LLM APIs**           | OpenAI-compatible (Chat Completions) and Anthropic (Messages). Detects when the provider reports a **different model** behind your alias, and when output checks (contains, regex, JSON Schema) stop passing. |
+| **MCP servers**        | Streamable HTTP, both the **2026-07-28 stateless** protocol and initialize-based servers (auto-detected). Detects removed tools, **new required parameters**, failing tool calls.                             |
+| **Drift inbox**        | Every change with path, before → after and severity. **Accept** (baseline updates) or **dismiss** (mute that change).                                                                                         |
+| **Incidents & alerts** | Incident after N consecutive failures; HMAC-signed webhooks and Slack with retries and a delivery log.                                                                                                        |
+| **CI deploy gate**     | `node scripts/contractrift-gate.mjs --tags payments` exits non-zero while a dependency is down or has unreviewed breaking drift.                                                                              |
+| **Teams & security**   | Viewer / editor / admin roles, read-only API tokens, audit log, AES-256-GCM encrypted write-only secrets with key rotation, secret URL parameters, SSRF protection, CSP.                                      |
 
-Requires Node.js 22.12+ (developed on 24).
+<table>
+  <tr>
+    <td><img src="assets/screenshots/drift-inbox.png" alt="Drift inbox" /></td>
+    <td><img src="assets/screenshots/monitor-detail.png" alt="Monitor detail with latency chart" /></td>
+  </tr>
+</table>
+
+## Quick start
+
+**Docker** (embedded PostgreSQL, data in a volume):
+
+```bash
+docker run -d --name contractrift -p 3000:3000 -v contractrift:/data \
+  -e ENCRYPTION_KEY="$(openssl rand -base64 32)" \
+  ghcr.io/ahmedgcompany-cyber/contractrift:latest
+```
+
+Open http://localhost:3000 and create the admin account. Keep the `ENCRYPTION_KEY` value (it encrypts stored
+API keys). For anything other than `localhost` over plain HTTP, put it behind HTTPS or add `-e COOKIE_SECURE=false`.
+
+**Docker Compose with PostgreSQL 17:** `cp .env.example .env`, set `ENCRYPTION_KEY` and `POSTGRES_PASSWORD`, then
+`docker compose up -d --build`.
+
+**One-click cloud:**
+
+<a href="https://render.com/deploy?repo=https://github.com/ahmedgcompany-cyber/contractrift"><img src="https://render.com/images/deploy-to-render-button.svg" alt="Deploy to Render" /></a>
+
+**From source** (Node.js 22.12+):
 
 ```bash
 npm ci
-cp .env.example .env
-npm run gen-key            # paste the output into ENCRYPTION_KEY in .env
-npm run build
-npm start                  # http://localhost:3000 → create the admin account
+cp .env.example .env && npm run gen-key   # paste the key into ENCRYPTION_KEY
+npm run build && npm start
 ```
 
-Without `DATABASE_URL`, Tripline stores data in an embedded PostgreSQL (PGlite) under
-`./data/pglite`. For production use PostgreSQL — see [DEPLOYMENT.md](DEPLOYMENT.md).
-
-Try it without any real credentials using the bundled test-substitute upstreams:
+Try it with no real credentials using the bundled fake upstreams:
 
 ```bash
-npm run upstreams -w backend   # fake JSON API, OpenAI/Anthropic formats, MCP servers on :4010
-# in .env set ALLOW_PRIVATE_TARGETS=true, then:
+npm run upstreams -w backend              # fake JSON, OpenAI/Anthropic-format and MCP servers on :4010
+# set ALLOW_PRIVATE_TARGETS=true in .env, then:
 npm run seed:demo -w backend -- --upstreams http://127.0.0.1:4010
 ```
 
+## Status
+
+**v0.3.0 — functional, tested MVP.** 146 unit/integration tests (on embedded PGlite and on PostgreSQL 17 in
+CI), 11 browser E2E tests, the docker-compose stack exercised in CI, and probes live-tested against the GitHub
+API, two real MCP servers (DeepWiki, Hugging Face) and a real OpenAI-compatible LLM server. Not yet load-tested.
+Full, honest status: [PROJECT_STATUS.md](PROJECT_STATUS.md).
+
 ## Documentation
 
-| Document                                                                                                                                         | Purpose                                               |
-| ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
-| [INSTALLATION.md](INSTALLATION.md)                                                                                                               | Install and first run                                 |
-| [USER_GUIDE.md](USER_GUIDE.md)                                                                                                                   | Using the product                                     |
-| [DEPLOYMENT.md](DEPLOYMENT.md)                                                                                                                   | Docker, PostgreSQL, reverse proxy, upgrades, rollback |
-| [API_DOCUMENTATION.md](API_DOCUMENTATION.md) · [api/openapi.yaml](api/openapi.yaml)                                                              | HTTP API                                              |
-| [ARCHITECTURE.md](ARCHITECTURE.md) · [DATABASE.md](DATABASE.md)                                                                                  | Design                                                |
-| [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) · [CLAUDE_CODE_GUIDE.md](CLAUDE_CODE_GUIDE.md) · [AI_DEVELOPMENT_CONTEXT.md](AI_DEVELOPMENT_CONTEXT.md) | Working on the code                                   |
-| [SECURITY.md](SECURITY.md) · [TROUBLESHOOTING.md](TROUBLESHOOTING.md)                                                                            | Operations                                            |
-| [PRODUCT_SPEC.md](PRODUCT_SPEC.md) · [ROADMAP.md](ROADMAP.md) · [MARKETING_CONTEXT.md](MARKETING_CONTEXT.md)                                     | Product                                               |
-| [PROJECT_STATUS.md](PROJECT_STATUS.md) · [CHANGELOG.md](CHANGELOG.md)                                                                            | Status                                                |
+| Document                                                                                                                                                                              | Purpose                                                           |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| [INSTALLATION.md](INSTALLATION.md)                                                                                                                                                    | Install and first run                                             |
+| [USER_GUIDE.md](USER_GUIDE.md)                                                                                                                                                        | Using the product                                                 |
+| [DEPLOYMENT.md](DEPLOYMENT.md)                                                                                                                                                        | Docker, PostgreSQL, Render, reverse proxy, key rotation, upgrades |
+| [API_DOCUMENTATION.md](API_DOCUMENTATION.md) · [api/openapi.yaml](api/openapi.yaml)                                                                                                   | HTTP API                                                          |
+| [ARCHITECTURE.md](ARCHITECTURE.md) · [DATABASE.md](DATABASE.md)                                                                                                                       | Design                                                            |
+| [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md) · [CONTRIBUTING.md](CONTRIBUTING.md) · [AI_DEVELOPMENT_CONTEXT.md](AI_DEVELOPMENT_CONTEXT.md) · [CLAUDE_CODE_GUIDE.md](CLAUDE_CODE_GUIDE.md) | Working on the code                                               |
+| [SECURITY.md](SECURITY.md) · [TROUBLESHOOTING.md](TROUBLESHOOTING.md)                                                                                                                 | Operations                                                        |
+| [PRODUCT_SPEC.md](PRODUCT_SPEC.md) · [ROADMAP.md](ROADMAP.md) · [research/](research/)                                                                                                | Product and research                                              |
+| [PROJECT_STATUS.md](PROJECT_STATUS.md) · [CHANGELOG.md](CHANGELOG.md)                                                                                                                 | Status                                                            |
 
 ## Tech
 
-TypeScript · Node.js 24 · Fastify 5 · Drizzle ORM · PostgreSQL / PGlite · React 19 · Vite ·
-TanStack Query · Vitest · Playwright.
+TypeScript · Node.js 24 · Fastify 5 · Drizzle ORM · PostgreSQL / PGlite · React 19 · Vite · TanStack Query ·
+Vitest · Playwright.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). The license choice is provisional; see PROJECT_STATUS.md
-("Requires user action").
+ContractRift is **dual-licensed**:
+
+- **Open source:** [GNU AGPL-3.0](LICENSE). Free to use, modify and self-host. If you offer a modified
+  version as a network service, you must publish your changes under the same license.
+- **Commercial license:** for organizations that cannot use AGPL software or want to embed or
+  resell ContractRift without its obligations. See [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md).

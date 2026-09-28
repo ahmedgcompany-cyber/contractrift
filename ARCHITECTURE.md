@@ -3,7 +3,7 @@
 ## 1. Overview
 
 ```
-                         ┌────────────────────────── Tripline process (Node.js 24) ───────────────────────────┐
+                         ┌────────────────────────── ContractRift process (Node.js 24) ───────────────────────────┐
  Browser (React SPA) ──► │ Fastify HTTP server                                                               │
  CI / scripts (token) ─► │   ├─ /api/v1/*  routes → services (business logic) → Drizzle ORM ─────────────┐    │
                          │   ├─ /api/docs  OpenAPI (generated from route schemas)                        │    │
@@ -112,13 +112,13 @@ without a database.
 - First-run setup creates the only initial admin (`POST /auth/setup` works only while zero users exist).
 - Login: argon2id verify; generic error message; per-IP rate limit (10/min); per-account lockout
   (10 consecutive failures → 15 minutes).
-- Session cookie `tripline_session`: httpOnly, SameSite=Lax, Secure when `COOKIE_SECURE=true`
+- Session cookie `contractrift_session`: httpOnly, SameSite=Lax, Secure when `COOKIE_SECURE=true`
   (default in production), TTL `SESSION_TTL_HOURS` (sliding `last_seen_at`).
 - **CSRF:** every state-changing request authenticated by cookie must carry header
-  `X-Tripline-CSRF: 1` (a custom header cross-site forms cannot send, and CORS is not enabled),
+  `X-ContractRift-CSRF: 1` (a custom header cross-site forms cannot send, and CORS is not enabled),
   and if an `Origin` header is present it must match `APP_URL`.
 - Roles: `viewer` (read) < `editor` (monitors, drift decisions, run) < `admin` (users, channels, audit).
-- API tokens: `tl_…` bearer tokens, SHA-256 stored, **read-only** (GET only), inherit owner's role for reads.
+- API tokens: `cr_…` bearer tokens, SHA-256 stored, **read-only** (GET only), inherit owner's role for reads.
 - Admin password reset sets a temporary password and `mustChangePassword`.
 
 ## 8. Error handling

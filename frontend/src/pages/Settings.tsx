@@ -106,7 +106,7 @@ function ChannelForm({ onDone }: { onDone: () => void }) {
           <Field
             label="Signing secret (optional)"
             className="span-2"
-            help="Adds X-Tripline-Signature: sha256=HMAC(secret, timestamp + '.' + body)."
+            help="Adds X-ContractRift-Signature: sha256=HMAC(secret, timestamp + '.' + body)."
           >
             <input
               type="password"
@@ -491,7 +491,7 @@ export function TokensPage() {
             <div className="cell-sub" style={{ marginTop: 8 }}>
               CI gate example:
             </div>
-            <pre className="excerpt">{`TRIPLINE_URL=${origin} TRIPLINE_TOKEN=<token> node scripts/tripline-gate.mjs --tags payments`}</pre>
+            <pre className="excerpt">{`CONTRACTRIFT_URL=${origin} CONTRACTRIFT_TOKEN=<token> node scripts/contractrift-gate.mjs --tags payments`}</pre>
             <button className="btn small" style={{ marginTop: 8 }} onClick={() => setCreated(null)}>
               I’ve stored it
             </button>

@@ -1,6 +1,6 @@
 /**
- * Local, protocol-faithful stand-ins for the upstreams Tripline monitors. These are real HTTP
- * servers (not mocks of Tripline code); they reproduce the documented request/response formats of:
+ * Local, protocol-faithful stand-ins for the upstreams ContractRift monitors. These are real HTTP
+ * servers (not mocks of ContractRift code); they reproduce the documented request/response formats of:
  *   - a generic JSON API whose response can be changed at runtime (to trigger drift)
  *   - OpenAI Chat Completions (POST /openai/v1/chat/completions)
  *   - Anthropic Messages (POST /anthropic/v1/messages)

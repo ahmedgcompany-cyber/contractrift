@@ -1,4 +1,4 @@
-/* Tripline — "instrument panel": warm paper & ink, one signal-orange trip line. */
+/* ContractRift — "instrument panel": warm paper & ink, one signal-orange trip line. */
 
 :root {
   --paper: #f3f0e8;
@@ -285,6 +285,14 @@ h3 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 18px;
+}
+/* grid items must be allowed to shrink below their content (long error messages) */
+.grid-2 > *,
+.grid-3 > * {
+  min-width: 0;
+}
+.grid-2 .cell-sub {
+  max-width: 260px;
 }
 .grid-3 {
   display: grid;

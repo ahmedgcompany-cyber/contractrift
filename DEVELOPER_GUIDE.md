@@ -3,7 +3,7 @@
 ## Repository layout
 
 ```
-tripline/
+contractrift/
 ├── backend/                 Fastify API, probes, drift engine, jobs (TypeScript, ESM)
 │   ├── src/
 │   │   ├── index.ts         process entry (config → DB → migrate → app → listen → jobs)
@@ -29,7 +29,7 @@ tripline/
 │   └── seeds/demo.ts        optional demo monitors
 ├── api/openapi.yaml         generated from route schemas (tested for drift)
 ├── tests/e2e/               Playwright specs
-├── scripts/                 gen-key.mjs, tripline-gate.mjs
+├── scripts/                 gen-key.mjs, contractrift-gate.mjs
 ├── research/                problem & competitor research
 └── .github/workflows/ci.yml
 ```
@@ -62,31 +62,35 @@ tripline/
 
 Read once at startup by `backend/src/config.ts`; invalid values stop the process with exit code 2.
 
-| Variable                     | Default                   | Description                                                                                                                            |
-| ---------------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `ENCRYPTION_KEY`             | **required**              | 32 bytes, base64. AES-256-GCM key for monitor secrets and channel URLs.                                                                |
-| `ENCRYPTION_KEY_PREVIOUS`    | —                         | Comma-separated old keys still accepted for decryption during rotation; at startup all secrets are re-encrypted with `ENCRYPTION_KEY`. |
-| `NODE_ENV`                   | `development`             | `development` \| `production` \| `test`. Production defaults cookies to Secure.                                                        |
-| `HOST`                       | `0.0.0.0`                 | Listen address.                                                                                                                        |
-| `PORT`                       | `3000`                    | Listen port.                                                                                                                           |
-| `APP_URL`                    | `http://localhost:$PORT`  | Public URL: notification links and CSRF `Origin` check.                                                                                |
-| `DATABASE_URL`               | —                         | PostgreSQL URL. Empty → embedded PGlite.                                                                                               |
-| `PGLITE_DATA_DIR`            | `./data/pglite`           | PGlite directory; `memory://` for in-memory.                                                                                           |
-| `SESSION_TTL_HOURS`          | `168`                     | Sliding session lifetime (1 – 2160).                                                                                                   |
-| `AUTH_RATE_LIMIT_PER_MINUTE` | `10`                      | Per-IP limit for login, setup and password change.                                                                                     |
-| `COOKIE_SECURE`              | `true` in production      | Secure flag on the session cookie (needs HTTPS).                                                                                       |
-| `TRUST_PROXY`                | `false`                   | Trust `X-Forwarded-*` (set behind a reverse proxy, for correct client IPs in rate limits/audit).                                       |
-| `LOG_LEVEL`                  | `info` (`silent` in test) | pino level.                                                                                                                            |
-| `ALLOW_PRIVATE_TARGETS`      | `false`                   | Allow probes/webhooks to private, loopback, link-local addresses.                                                                      |
-| `SCHEDULER_ENABLED`          | `true`                    | Run background jobs in this process.                                                                                                   |
-| `SCHEDULER_CONCURRENCY`      | `8`                       | Max checks in flight per process.                                                                                                      |
-| `SCHEDULER_TICK_MS`          | `5000`                    | How often due monitors are claimed.                                                                                                    |
-| `RETENTION_DAYS`             | `30`                      | Check results and finished deliveries older than this are deleted hourly.                                                              |
-| `FRONTEND_DIST`              | `frontend/dist`           | Built UI directory; empty = API only.                                                                                                  |
+| Variable                       | Default                                       | Description                                                                                                                            |
+| ------------------------------ | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `ENCRYPTION_KEY`               | **required**                                  | 32 bytes, base64. AES-256-GCM key for monitor secrets and channel URLs.                                                                |
+| `ENCRYPTION_KEY_PREVIOUS`      | —                                             | Comma-separated old keys still accepted for decryption during rotation; at startup all secrets are re-encrypted with `ENCRYPTION_KEY`. |
+| `NODE_ENV`                     | `development`                                 | `development` \| `production` \| `test`. Production defaults cookies to Secure.                                                        |
+| `HOST`                         | `0.0.0.0`                                     | Listen address.                                                                                                                        |
+| `PORT`                         | `3000`                                        | Listen port.                                                                                                                           |
+| `APP_URL`                      | `http://localhost:$PORT`                      | Public URL: notification links and CSRF `Origin` check.                                                                                |
+| `RENDER_EXTERNAL_URL`          | —                                             | Set automatically on Render; used when `APP_URL` is empty.                                                                             |
+| `DATABASE_URL`                 | —                                             | PostgreSQL URL. Empty → embedded PGlite.                                                                                               |
+| `PGLITE_DATA_DIR`              | `./data/pglite`                               | PGlite directory; `memory://` for in-memory.                                                                                           |
+| `SESSION_TTL_HOURS`            | `168`                                         | Sliding session lifetime (1 – 2160).                                                                                                   |
+| `AUTH_RATE_LIMIT_PER_MINUTE`   | `10`                                          | Per-IP limit for login, setup and password change.                                                                                     |
+| `SETUP_TOKEN`                  | —                                             | If set, first-run setup requires this value. **Set it on every internet-facing install.**                                              |
+| `DEMO_MODE`                    | `false`                                       | Public read-only demo: creates the demo viewer account and demo monitors at startup; shows the credentials on the login page.          |
+| `DEMO_EMAIL` / `DEMO_PASSWORD` | `demo@contractrift.dev` / `contractrift-demo` | Demo account credentials (public by design).                                                                                           |
+| `COOKIE_SECURE`                | `true` in production                          | Secure flag on the session cookie (needs HTTPS).                                                                                       |
+| `TRUST_PROXY`                  | `false`                                       | Trust `X-Forwarded-*` (set behind a reverse proxy, for correct client IPs in rate limits/audit).                                       |
+| `LOG_LEVEL`                    | `info` (`silent` in test)                     | pino level.                                                                                                                            |
+| `ALLOW_PRIVATE_TARGETS`        | `false`                                       | Allow probes/webhooks to private, loopback, link-local addresses.                                                                      |
+| `SCHEDULER_ENABLED`            | `true`                                        | Run background jobs in this process.                                                                                                   |
+| `SCHEDULER_CONCURRENCY`        | `8`                                           | Max checks in flight per process.                                                                                                      |
+| `SCHEDULER_TICK_MS`            | `5000`                                        | How often due monitors are claimed.                                                                                                    |
+| `RETENTION_DAYS`               | `30`                                          | Check results and finished deliveries older than this are deleted hourly.                                                              |
+| `FRONTEND_DIST`                | `frontend/dist`                               | Built UI directory; empty = API only.                                                                                                  |
 
 Test/tooling only: `TEST_DATABASE_URL` (run integration tests against real PostgreSQL — the
 schema is **dropped** each run), `UPSTREAMS_PORT`, `PW_CHANNEL`, `CI`. Gate script:
-`TRIPLINE_URL`, `TRIPLINE_TOKEN`.
+`CONTRACTRIFT_URL`, `CONTRACTRIFT_TOKEN`.
 
 ## Conventions
 

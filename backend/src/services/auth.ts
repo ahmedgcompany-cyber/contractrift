@@ -4,6 +4,7 @@ import { sessions, users } from '../db/schema.js';
 import { randomToken, sha256 } from '../lib/crypto.js';
 import { AppError, validation } from '../lib/errors.js';
 import { audit } from './audit.js';
+import { isDemoUser } from './demo.js';
 import type { Actor, Ctx } from './context.js';
 
 export const MAX_FAILED_LOGINS = 10;
@@ -92,7 +93,8 @@ export async function login(ctx: Ctx, input: { email: string; password: string; 
   const ok = await verify(user.passwordHash, input.password).catch(() => false);
   if (!ok) {
     const failures = user.failedLoginCount + 1;
-    const lock = failures >= MAX_FAILED_LOGINS;
+    // The shared demo account's password is public; locking it would only let anyone deny the demo.
+    const lock = failures >= MAX_FAILED_LOGINS && !isDemoUser(ctx, user);
     await ctx.db
       .update(users)
       .set({

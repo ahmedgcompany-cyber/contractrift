@@ -6,13 +6,13 @@ from the same schemas that validate requests, and a test fails if the committed 
 
 ## Authentication
 
-| Method         | How                                                                                                        | Allowed                                       |
-| -------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| Session cookie | `POST /auth/login` or `/auth/setup` sets `tripline_session` (httpOnly, SameSite=Lax, Secure in production) | Everything the user's role allows             |
-| API token      | `Authorization: Bearer tl_…` (create in the UI or `POST /tokens`)                                          | **GET requests only**; any other method → 403 |
+| Method         | How                                                                                                            | Allowed                                       |
+| -------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Session cookie | `POST /auth/login` or `/auth/setup` sets `contractrift_session` (httpOnly, SameSite=Lax, Secure in production) | Everything the user's role allows             |
+| API token      | `Authorization: Bearer cr_…` (create in the UI or `POST /tokens`)                                              | **GET requests only**; any other method → 403 |
 
 **CSRF:** every `POST/PATCH/PUT/DELETE` without a bearer token must include
-`X-Tripline-CSRF: 1`; if an `Origin` header is present it must equal the origin of `APP_URL`.
+`X-ContractRift-CSRF: 1`; if an `Origin` header is present it must equal the origin of `APP_URL`.
 Missing/mismatched → `403 CSRF_REJECTED`.
 
 **Roles:** `viewer` < `editor` < `admin`. Each endpoint below lists the minimum role.
@@ -56,8 +56,8 @@ Global 600 requests/min per IP. Stricter: `POST /auth/login`, `/auth/setup`,
 
 | Method & path                    | Role                        | Purpose                                                                                                                                                 |
 | -------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GET `/auth/setup-status`         | public                      | `{ needsSetup }`                                                                                                                                        |
-| POST `/auth/setup`               | public (only while 0 users) | `{ email, name, password }` → 201 `{ user }` + cookie                                                                                                   |
+| GET `/auth/setup-status`         | public                      | `{ needsSetup, setupTokenRequired, demo? }` — `demo` holds the public demo credentials when `DEMO_MODE` is on                                           |
+| POST `/auth/setup`               | public (only while 0 users) | `{ email, name, password, setupToken? }` → 201 `{ user }` + cookie; `setupToken` required when the server sets `SETUP_TOKEN`                            |
 | POST `/auth/login`               | public                      | `{ email, password }` → `{ user }` + cookie                                                                                                             |
 | POST `/auth/logout`              | viewer                      | 204; deletes the session                                                                                                                                |
 | GET `/auth/me`                   | viewer                      | `{ user, via: "session" \| "token" }`                                                                                                                   |
@@ -172,21 +172,21 @@ CONFIG (secrets not decryptable), INTERNAL`.
 
 ```bash
 # sign in (cookie jar), create a monitor, run it
-curl -c jar -H 'X-Tripline-CSRF: 1' -H 'content-type: application/json' \
+curl -c jar -H 'X-ContractRift-CSRF: 1' -H 'content-type: application/json' \
   -d '{"email":"admin@example.com","password":"…"}' http://localhost:3000/api/v1/auth/login
-curl -b jar -H 'X-Tripline-CSRF: 1' -H 'content-type: application/json' \
+curl -b jar -H 'X-ContractRift-CSRF: 1' -H 'content-type: application/json' \
   -d '{"name":"GitHub repo","kind":"http","config":{"url":"https://api.github.com/repos/nodejs/node"}}' \
   http://localhost:3000/api/v1/monitors
-curl -b jar -X POST -H 'X-Tripline-CSRF: 1' http://localhost:3000/api/v1/monitors/<id>/run
+curl -b jar -X POST -H 'X-ContractRift-CSRF: 1' http://localhost:3000/api/v1/monitors/<id>/run
 
 # CI gate with a token
-curl -H "Authorization: Bearer $TRIPLINE_TOKEN" 'http://localhost:3000/api/v1/gate?tags=payments'
+curl -H "Authorization: Bearer $CONTRACTRIFT_TOKEN" 'http://localhost:3000/api/v1/gate?tags=payments'
 ```
 
 ## Webhook payload
 
-Headers: `X-Tripline-Event`, `X-Tripline-Delivery` (uuid), and with a secret
-`X-Tripline-Timestamp` + `X-Tripline-Signature: sha256=<hex HMAC-SHA256(secret, timestamp + "." + body)>`.
+Headers: `X-ContractRift-Event`, `X-ContractRift-Delivery` (uuid), and with a secret
+`X-ContractRift-Timestamp` + `X-ContractRift-Signature: sha256=<hex HMAC-SHA256(secret, timestamp + "." + body)>`.
 
 ```json
 {
@@ -201,7 +201,7 @@ Headers: `X-Tripline-Event`, `X-Tripline-Delivery` (uuid), and with a secret
       { "path": "$.owner.email", "message": "Field $.owner.email (always present in the baseline) is missing.", "severity": "breaking" }
     ]
   },
-  "link": "https://tripline.example.com/monitors/…"
+  "link": "https://contractrift.example.com/monitors/…"
 }
 ```
 

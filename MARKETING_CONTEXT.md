@@ -6,7 +6,7 @@ performance, adoption or customer claims — none exist yet.
 
 ## Product overview
 
-Tripline is a self-hosted monitor for the third-party dependencies an application relies on —
+ContractRift is a self-hosted monitor for the third-party dependencies an application relies on —
 REST APIs, LLM APIs and MCP tool servers. It detects outages **and** silent changes: removed or
 re-typed fields, a different model behind your LLM alias, a missing MCP tool.
 
@@ -52,13 +52,13 @@ One-liner: **"Know when your upstreams change — before your users do. Your key
 
 ## Positioning
 
-"Uptime Kuma tells you it's up. Tripline tells you it's still the same."
+"Uptime Kuma tells you it's up. ContractRift tells you it's still the same."
 Between generic uptime monitors (too shallow) and APM/LLM-observability suites (instrument your
 own app, not your dependencies).
 
 ## Objections & honest answers
 
-- _"I can write assertions in Checkly/Gatus."_ — Yes, per field. Tripline learns the whole structure and flags what you didn't think to assert.
+- _"I can write assertions in Checkly/Gatus."_ — Yes, per field. ContractRift learns the whole structure and flags what you didn't think to assert.
 - _"Another thing to host."_ — One Node process; PostgreSQL optional for small installs (embedded). SaaS competitors avoid hosting but need your keys.
 - _"LLM checks cost tokens."_ — Short fixed prompts, default ≤ 32 output tokens, interval ≥ 30 s you choose.
 - _"Is it production-ready?"_ — v0.1: tested extensively against local substitutes; not yet proven against real providers or at scale (see PROJECT_STATUS.md).
@@ -79,7 +79,7 @@ own app, not your dependencies).
 
 ## Demo script (works today, no real credentials)
 
-1. `npm run upstreams -w backend`, start Tripline with `ALLOW_PRIVATE_TARGETS=true`, seed `--upstreams http://127.0.0.1:4010`.
+1. `npm run upstreams -w backend`, start ContractRift with `ALLOW_PRIVATE_TARGETS=true`, seed `--upstreams http://127.0.0.1:4010`.
 2. Show dashboard → monitor detail → baseline tab.
 3. `curl -X POST localhost:4010/__control -d '{"json":{"body":{"id":"1"}}}' -H 'content-type: application/json'`, click _Run check now_, open the drift inbox, accept.
 4. Show the gate script failing, then passing after accept.

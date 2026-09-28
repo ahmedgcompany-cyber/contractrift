@@ -15,7 +15,7 @@ import { AccountPage, AuditPage, ChannelsPage, TokensPage, UsersPage } from './p
 function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading, needsSetup } = useAuth();
   const loc = useLocation();
-  if (loading) return <Loading label="Starting Tripline…" />;
+  if (loading) return <Loading label="Starting ContractRift…" />;
   if (needsSetup) return <Navigate to="/setup" replace />;
   if (!user) return <Navigate to="/login" replace state={{ from: loc.pathname }} />;
   if (user.mustChangePassword) return <Navigate to="/change-password" replace />;

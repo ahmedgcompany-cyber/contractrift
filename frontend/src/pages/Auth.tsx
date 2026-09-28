@@ -13,7 +13,7 @@ function AuthCard({ title, sub, children }: { title: string; sub: ReactNode; chi
           <div className="brand">
             <Logo />
             <div>
-              <div className="brand-name">Tripline</div>
+              <div className="brand-name">ContractRift</div>
               <div className="brand-tag">dependency drift monitor</div>
             </div>
           </div>
@@ -29,9 +29,9 @@ function AuthCard({ title, sub, children }: { title: string; sub: ReactNode; chi
 }
 
 export function SetupPage() {
-  const { needsSetup, loading, refresh } = useAuth();
+  const { needsSetup, setupTokenRequired, loading, refresh } = useAuth();
   const nav = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', setupToken: '' });
   const [error, setError] = useState<unknown>(null);
   const [busy, setBusy] = useState(false);
   if (loading) return <Loading />;
@@ -44,7 +44,12 @@ export function SetupPage() {
     setBusy(true);
     setError(null);
     try {
-      await api.post('/auth/setup', { name: form.name, email: form.email, password: form.password });
+      await api.post('/auth/setup', {
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        ...(setupTokenRequired ? { setupToken: form.setupToken } : {}),
+      });
       await refresh();
       nav('/');
     } catch (err) {
@@ -57,6 +62,17 @@ export function SetupPage() {
     <AuthCard title="Create the administrator account" sub="This runs once. Later users are invited by an administrator.">
       <form onSubmit={submit} style={{ marginTop: 16 }}>
         {error ? <ErrorNote error={error} /> : null}
+        {setupTokenRequired ? (
+          <Field label="Setup token" help="Set by SETUP_TOKEN on the server (for example in your hosting dashboard).">
+            <input
+              required
+              type="password"
+              autoComplete="off"
+              value={form.setupToken}
+              onChange={(e) => setForm({ ...form, setupToken: e.target.value })}
+            />
+          </Field>
+        ) : null}
         <Field label="Name">
           <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} autoComplete="name" />
         </Field>
@@ -98,7 +114,7 @@ export function SetupPage() {
 }
 
 export function LoginPage() {
-  const { user, needsSetup, loading, refresh } = useAuth();
+  const { user, needsSetup, loading, refresh, demo } = useAuth();
   const nav = useNavigate();
   const loc = useLocation() as { state?: { from?: string } };
   const [form, setForm] = useState({ email: '', password: '' });
@@ -125,6 +141,16 @@ export function LoginPage() {
   return (
     <AuthCard title="Sign in" sub="Know when your upstreams change — before your users do.">
       <form onSubmit={submit} style={{ marginTop: 16 }}>
+        {demo ? (
+          <div className="note">
+            <strong>Public demo.</strong> Read-only account: <code>{demo.email}</code> / <code>{demo.password}</code>
+            <div style={{ marginTop: 8 }}>
+              <button type="button" className="btn small" onClick={() => setForm({ email: demo.email, password: demo.password })}>
+                Fill in demo account
+              </button>
+            </div>
+          </div>
+        ) : null}
         {error ? <ErrorNote error={error} /> : null}
         <Field label="Email">
           <input

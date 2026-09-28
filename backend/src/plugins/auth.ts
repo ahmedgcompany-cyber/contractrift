@@ -4,8 +4,8 @@ import { resolveSession, type UserRow } from '../services/auth.js';
 import type { Actor, Ctx } from '../services/context.js';
 import { resolveToken } from '../services/tokens.js';
 
-export const SESSION_COOKIE = 'tripline_session';
-export const CSRF_HEADER = 'x-tripline-csrf';
+export const SESSION_COOKIE = 'contractrift_session';
+export const CSRF_HEADER = 'x-contractrift-csrf';
 
 export type Auth = { user: UserRow; via: 'session' | 'token'; sessionId: string | null };
 

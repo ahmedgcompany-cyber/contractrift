@@ -1,6 +1,6 @@
 {
-  "name": "@tripline/frontend",
-  "version": "0.2.0",
+  "name": "@contractrift/frontend",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -23,5 +23,6 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-router": "^8.4.0"
-  }
+  },
+  "license": "AGPL-3.0-only"
 }

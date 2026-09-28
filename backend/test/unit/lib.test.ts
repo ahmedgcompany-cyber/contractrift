@@ -45,6 +45,12 @@ describe('config', () => {
     expect(dev).toMatchObject({ port: 3000, cookieSecure: false, allowPrivateTargets: false, schedulerEnabled: true, retentionDays: 30 });
     expect(loadConfig({ ENCRYPTION_KEY: key, NODE_ENV: 'production' }).cookieSecure).toBe(true);
   });
+  it('falls back to RENDER_EXTERNAL_URL for APP_URL', () => {
+    expect(loadConfig({ ENCRYPTION_KEY: key, RENDER_EXTERNAL_URL: 'https://x.onrender.com/' }).appUrl).toBe('https://x.onrender.com');
+    expect(loadConfig({ ENCRYPTION_KEY: key, APP_URL: 'https://a.test', RENDER_EXTERNAL_URL: 'https://x.onrender.com' }).appUrl).toBe(
+      'https://a.test',
+    );
+  });
   it('rejects invalid values', () => {
     expect(() => loadConfig({ ENCRYPTION_KEY: key, PORT: 'abc' })).toThrow(/PORT/);
     expect(() => loadConfig({ ENCRYPTION_KEY: key, ALLOW_PRIVATE_TARGETS: 'maybe' })).toThrow(/boolean/);

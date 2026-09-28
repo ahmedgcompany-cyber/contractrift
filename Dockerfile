@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-# Tripline — single image serving API, UI and background jobs.
+# ContractRift — single image serving API, UI and background jobs.
 # Built, started and exercised in CI (docker-compose job in .github/workflows/ci.yml).
 
 FROM node:24-bookworm-slim AS build

@@ -57,11 +57,11 @@ secrets) in the vendor's cloud.
 (traffic replay). They compare _specs_ or _your_ API; they do not continuously probe third-party
 production behavior (S7).
 
-## 7. Gaps → Tripline positioning
+## 7. Gaps → ContractRift positioning
 
 1. **Self-hosted continuous drift detection.** Every continuous drift monitor found is SaaS.
-   Tripline runs inside your network; probe credentials never leave it.
-2. **One tool for REST + LLM + MCP.** Competitors specialize in one. Tripline covers the three
+   ContractRift runs inside your network; probe credentials never leave it.
+2. **One tool for REST + LLM + MCP.** Competitors specialize in one. ContractRift covers the three
    dependency classes AI-era apps actually have, with type-specific probes.
 3. **Automatic baseline, not hand-written assertions.** Unlike Uptime Kuma/Gatus/Checkly.
 4. **CI deploy gate** on the same data (a gap S7 calls out explicitly).
@@ -70,9 +70,9 @@ production behavior (S7).
 
 ## 8. What competitors do better (honest)
 
-- PromptCanary / LLM eval platforms: LLM-judge and similarity scoring (Tripline MVP has none).
+- PromptCanary / LLM eval platforms: LLM-judge and similarity scoring (ContractRift MVP has none).
 - Checkly / Datadog: global multi-region probing, browser checks, mature alerting integrations.
-- FlareCanary: hosted — zero ops. Tripline requires running a server and a database.
+- FlareCanary: hosted — zero ops. ContractRift requires running a server and a database.
 - Uptime Kuma: huge community, dozens of notification channels, status pages.
 
 ## 9. Open-source alternatives we could have extended instead
@@ -81,4 +81,4 @@ Extending Uptime Kuma or Gatus was considered. Rejected because baseline-learnin
 drift acknowledgement workflow, LLM/MCP probe types and a gate API are a different data model
 (per-monitor baselines and drift events) rather than a single new monitor type; and upstream
 acceptance is outside our control. This is recorded as a reversible decision; a future
-"Tripline as Gatus external endpoint" integration is listed in ROADMAP.md.
+"ContractRift as Gatus external endpoint" integration is listed in ROADMAP.md.

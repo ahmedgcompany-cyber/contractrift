@@ -10,7 +10,7 @@ import { type ProbeContext, type ProbeOutcome, redactExcerpt, summarize } from '
 export const MODERN_VERSION = '2026-07-28';
 /** Newest initialize-based protocol version we request; servers may answer with an older one. */
 export const LEGACY_VERSION = '2025-11-25';
-const CLIENT_INFO = { name: 'tripline', version: '0.2.0' };
+const CLIENT_INFO = { name: 'contractrift', version: '0.3.0' };
 const MAX_TOOL_PAGES = 10;
 
 export class McpProtocolError extends Error {

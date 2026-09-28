@@ -3,6 +3,7 @@ import { ConfigError, loadConfig } from './config.js';
 import { openDatabase } from './db/client.js';
 import { Jobs } from './jobs/jobs.js';
 import { closeHttpAgents } from './lib/http-client.js';
+import { ensureDemo } from './services/demo.js';
 import { reencryptAll } from './services/keys.js';
 
 async function main() {
@@ -32,6 +33,11 @@ async function main() {
     if (report.monitors.failed || report.channels.failed) {
       app.log.warn('Some secrets could not be decrypted with any configured key; they must be re-entered.');
     }
+  }
+
+  if (config.demoMode) {
+    await ensureDemo(ctx);
+    app.log.info({ email: config.demoEmail }, 'demo mode: read-only demo account and demo monitors ensured');
   }
 
   const jobs = new Jobs(ctx);
