@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm';
 import type { FastifyInstance, InjectOptions } from 'fastify';
 import { buildApp } from '../../src/app.js';
 import { loadConfig } from '../../src/config.js';
@@ -24,7 +25,15 @@ export async function createHarness(env: Record<string, string> = {}): Promise<H
     APP_URL: 'http://localhost:3000',
     ...env,
   });
-  const database = await openDatabase({});
+  // TEST_DATABASE_URL runs the suite against a real PostgreSQL (CI); otherwise in-memory PGlite.
+  // With a real server the schema is wiped for every harness, so files must not run in parallel.
+  const databaseUrl = process.env.TEST_DATABASE_URL;
+  const database = await openDatabase(databaseUrl ? { databaseUrl } : {});
+  if (databaseUrl) {
+    await database.db.execute(sql`drop schema if exists public cascade`);
+    await database.db.execute(sql`drop schema if exists drizzle cascade`);
+    await database.db.execute(sql`create schema public`);
+  }
   await database.migrate();
   const { app, ctx } = await buildApp(config, database, { logger: false });
   await app.ready();

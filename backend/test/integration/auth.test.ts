@@ -160,7 +160,10 @@ describe('CSRF and security headers', () => {
 
   it('healthz and readyz respond', async () => {
     expect((await h.app.inject({ method: 'GET', url: '/healthz' })).json()).toEqual({ status: 'ok' });
-    expect((await h.app.inject({ method: 'GET', url: '/readyz' })).json()).toMatchObject({ status: 'ready', database: 'pglite' });
+    expect((await h.app.inject({ method: 'GET', url: '/readyz' })).json()).toMatchObject({
+      status: 'ready',
+      database: process.env.TEST_DATABASE_URL ? 'pg' : 'pglite',
+    });
   });
 });
 
