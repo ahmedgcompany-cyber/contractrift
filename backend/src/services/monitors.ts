@@ -1,4 +1,4 @@
-import { and, arrayOverlaps, asc, eq, ilike, inArray, or, type SQL, sql } from 'drizzle-orm';
+import { and, arrayOverlaps, asc, eq, ilike, or, type SQL, sql } from 'drizzle-orm';
 import { queryRows } from '../db/client.js';
 import { baselines, monitors } from '../db/schema.js';
 import { decryptJson, encryptJson } from '../lib/crypto.js';
@@ -257,9 +257,4 @@ export async function resetBaseline(ctx: Ctx, id: string, actor: Actor) {
   await getMonitorRow(ctx, id);
   await ctx.db.delete(baselines).where(eq(baselines.monitorId, id));
   await audit(ctx, actor, { action: 'monitor.baseline_reset', targetType: 'monitor', targetId: id });
-}
-
-export async function monitorsByIds(ctx: Ctx, ids: string[]) {
-  if (!ids.length) return [];
-  return ctx.db.select().from(monitors).where(inArray(monitors.id, ids));
 }

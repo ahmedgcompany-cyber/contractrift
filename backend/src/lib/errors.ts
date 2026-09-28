@@ -40,5 +40,4 @@ export class AppError extends Error {
 
 export const notFound = (what: string) => new AppError('NOT_FOUND', `${what} was not found.`);
 export const validation = (message: string, details?: unknown) => new AppError('VALIDATION_ERROR', message, details);
-export const forbidden = (message = 'You do not have permission to perform this action.') => new AppError('FORBIDDEN', message);
 export const conflict = (message: string) => new AppError('CONFLICT', message);

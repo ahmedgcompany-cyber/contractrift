@@ -19,7 +19,7 @@ First functional MVP.
 - PostgreSQL schema + migrations (Drizzle); embedded PGlite fallback; retention job.
 - React UI: dashboard, monitors, monitor detail (latency chart, history, baseline, drift, incidents), monitor form with dry-run testing, drift inbox, incidents, notifications, users, tokens, audit log, account; light/dark; responsive.
 - OpenAPI 3.1 document generated from route schemas.
-- Tests: 137 unit/integration (Vitest), 10 E2E (Playwright). Dockerfile, docker-compose, GitHub Actions CI.
+- Tests: 134 unit/integration (Vitest), 10 E2E (Playwright). Dockerfile, docker-compose, GitHub Actions CI.
 
 ### Fixed (during development)
 

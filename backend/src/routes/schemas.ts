@@ -232,5 +232,3 @@ export const Gate = Type.Object({
 
 /** Standard error responses for a route, referenced in OpenAPI. */
 export const errors = (...codes: number[]) => Object.fromEntries(codes.map((c) => [c, Type.Ref('ErrorResponse')]));
-
-export const Paging = Type.Object({ limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 200, default: 50 })) });

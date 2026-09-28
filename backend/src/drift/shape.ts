@@ -90,7 +90,3 @@ export function mergeShapes(a: Shape, b: Shape): Shape {
   if (a.truncated || b.truncated) merged.truncated = true;
   return merged;
 }
-
-export function emptyShape(): Shape {
-  return { samples: 0, paths: {} };
-}
