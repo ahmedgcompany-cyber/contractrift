@@ -3,14 +3,14 @@ import type { Signature } from '../drift/types.js';
 import { sha256 } from '../lib/crypto.js';
 import { OutboundError, outboundRequest } from '../lib/http-client.js';
 import type { McpConfig, ProbeSecrets } from './config.js';
-import { failureFromError, secretValues } from './http.js';
+import { failureFromError, secretValues, withSecretQuery } from './http.js';
 import { type ProbeContext, type ProbeOutcome, redactExcerpt, summarize } from './types.js';
 
 /** Stateless protocol generation (no initialize handshake; `server/discover`). */
 export const MODERN_VERSION = '2026-07-28';
 /** Newest initialize-based protocol version we request; servers may answer with an older one. */
 export const LEGACY_VERSION = '2025-11-25';
-const CLIENT_INFO = { name: 'tripline', version: '0.1.0' };
+const CLIENT_INFO = { name: 'tripline', version: '0.2.0' };
 const MAX_TOOL_PAGES = 10;
 
 export class McpProtocolError extends Error {
@@ -112,7 +112,7 @@ class McpClient {
     const id = session ? session.nextId++ : 1;
     const message = opts.notification ? { jsonrpc: '2.0', method, params } : { jsonrpc: '2.0', id, method, params };
     const res = await outboundRequest({
-      url: this.cfg.url,
+      url: withSecretQuery(this.cfg.url, this.secrets),
       method: 'POST',
       headers: { ...this.headers(session, method, opts.name), ...opts.headers },
       body: JSON.stringify(message),
@@ -199,7 +199,7 @@ class McpClient {
     if (session.generation !== 'legacy' || !session.sessionId) return;
     try {
       await outboundRequest({
-        url: this.cfg.url,
+        url: withSecretQuery(this.cfg.url, this.secrets),
         method: 'DELETE',
         headers: this.headers(session, 'DELETE'),
         timeoutMs: Math.min(this.ctx.timeoutMs, 3000),

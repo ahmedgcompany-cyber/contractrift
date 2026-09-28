@@ -23,7 +23,7 @@ export type UpstreamState = {
   mcp: { token: string | null; tools: Tool[]; sse: boolean; toolError: boolean };
   hooks: { headers: http.IncomingHttpHeaders; body: string; path: string }[];
   hookStatus: number;
-  requests: { method: string; url: string; headers: http.IncomingHttpHeaders }[];
+  requests: { method: string; url: string; search: string; headers: http.IncomingHttpHeaders }[];
 };
 
 export function defaultState(): UpstreamState {
@@ -83,7 +83,7 @@ export async function startUpstreams(port = 0): Promise<Upstreams> {
 
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url ?? '/', 'http://localhost');
-    state.requests.push({ method: req.method ?? '', url: url.pathname, headers: req.headers });
+    state.requests.push({ method: req.method ?? '', url: url.pathname, search: url.search, headers: req.headers });
     const body = await readBody(req);
     const p = url.pathname;
 

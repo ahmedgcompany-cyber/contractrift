@@ -28,7 +28,7 @@ export const authRoutes =
     app.post(
       '/auth/setup',
       {
-        config: { rateLimit: { max: 10, timeWindow: '1 minute' } },
+        config: { rateLimit: { max: ctx.config.authRateLimitPerMinute, timeWindow: '1 minute' } },
         schema: {
           tags,
           summary: 'Create the first administrator (only while no users exist) and sign in',
@@ -50,7 +50,7 @@ export const authRoutes =
     app.post(
       '/auth/login',
       {
-        config: { rateLimit: { max: 10, timeWindow: '1 minute' } },
+        config: { rateLimit: { max: ctx.config.authRateLimitPerMinute, timeWindow: '1 minute' } },
         schema: {
           tags,
           summary: 'Sign in with email and password; sets the session cookie',
@@ -94,7 +94,11 @@ export const authRoutes =
     app.post(
       '/auth/change-password',
       {
-        config: { role: 'viewer', allowPasswordChangePending: true, rateLimit: { max: 10, timeWindow: '1 minute' } },
+        config: {
+          role: 'viewer',
+          allowPasswordChangePending: true,
+          rateLimit: { max: ctx.config.authRateLimitPerMinute, timeWindow: '1 minute' },
+        },
         schema: {
           tags,
           summary: 'Change own password; signs out all other sessions',

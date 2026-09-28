@@ -26,8 +26,19 @@ export async function summary(ctx: Ctx) {
     .select({ n: count(), failed: sql<number>`count(*) filter (where not ${checkResults.ok})::int` })
     .from(checkResults)
     .where(sql`${checkResults.startedAt} > now() - interval '24 hours'`);
+  // Distinct enabled monitors that are down or have open breaking drift.
+  const [attention] = await ctx.db
+    .select({ n: count() })
+    .from(monitors)
+    .where(
+      and(
+        eq(monitors.enabled, true),
+        sql`(${monitors.status} = 'down' or exists (select 1 from drift_events d where d.monitor_id = "monitors"."id" and d.status = 'open' and d.severity = 'breaking'))`,
+      ),
+    );
   return {
     monitors: counts,
+    needsAttention: attention?.n ?? 0,
     openIncidents: openIncidents?.n ?? 0,
     openDrift,
     checksLast24h: { total: checks24h?.n ?? 0, failed: Number(checks24h?.failed ?? 0) },

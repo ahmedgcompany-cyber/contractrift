@@ -14,22 +14,34 @@ export function encrypt(plaintext: string, key: Buffer): string {
   return [VERSION, iv.toString('base64url'), tag.toString('base64url'), ciphertext.toString('base64url')].join('.');
 }
 
-export function decrypt(payload: string, key: Buffer): string {
+/**
+ * Decrypts with the first key that authenticates. Passing several keys (current first, then
+ * previous ones) supports key rotation; GCM authentication rejects wrong keys reliably.
+ */
+export function decrypt(payload: string, keys: Buffer | readonly Buffer[]): string {
   const [version, iv, tag, data] = payload.split('.');
   if (version !== VERSION || !iv || !tag || data === undefined) {
     throw new Error('Unrecognized encrypted payload format');
   }
-  const decipher = createDecipheriv('aes-256-gcm', key, Buffer.from(iv, 'base64url'));
-  decipher.setAuthTag(Buffer.from(tag, 'base64url'));
-  return Buffer.concat([decipher.update(Buffer.from(data, 'base64url')), decipher.final()]).toString('utf8');
+  let lastError: unknown;
+  for (const key of Buffer.isBuffer(keys) ? [keys] : keys) {
+    try {
+      const decipher = createDecipheriv('aes-256-gcm', key, Buffer.from(iv, 'base64url'));
+      decipher.setAuthTag(Buffer.from(tag, 'base64url'));
+      return Buffer.concat([decipher.update(Buffer.from(data, 'base64url')), decipher.final()]).toString('utf8');
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  throw lastError ?? new Error('No decryption key supplied');
 }
 
 export function encryptJson(value: unknown, key: Buffer): string {
   return encrypt(JSON.stringify(value), key);
 }
 
-export function decryptJson<T>(payload: string, key: Buffer): T {
-  return JSON.parse(decrypt(payload, key)) as T;
+export function decryptJson<T>(payload: string, keys: Buffer | readonly Buffer[]): T {
+  return JSON.parse(decrypt(payload, keys)) as T;
 }
 
 /** 256-bit random token, base64url. */

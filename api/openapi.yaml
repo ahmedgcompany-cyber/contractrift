@@ -2,7 +2,7 @@
 openapi: 3.1.0
 info:
   title: Tripline API
-  version: 0.1.0
+  version: 0.2.0
   description: "Self-hosted dependency drift monitor. Authenticate with the session cookie (browser; state-changing requests need header `X-Tripline-CSRF: 1`) or a read-only bearer API token."
 components:
   securitySchemes:
@@ -900,7 +900,7 @@ paths:
                 $ref: "#/components/schemas/def-0"
   /api/v1/monitors:
     get:
-      summary: List monitors with recent check durations and open drift counts
+      summary: List monitors (paginated, ordered by name) with recent check durations and open drift counts
       tags: &a4
         - monitors
       parameters:
@@ -934,6 +934,21 @@ paths:
           in: query
           name: tag
           required: false
+        - schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+          in: query
+          name: limit
+          required: false
+        - schema:
+            type: integer
+            minimum: 0
+            default: 0
+          in: query
+          name: offset
+          required: false
       responses:
         "200":
           description: Default Response
@@ -943,6 +958,9 @@ paths:
                 type: object
                 required:
                   - monitors
+                  - total
+                  - limit
+                  - offset
                 properties:
                   monitors:
                     type: array
@@ -1010,9 +1028,14 @@ paths:
                               type: object
                               required:
                                 - headers
+                                - query
                                 - apiKey
                               properties:
                                 headers:
+                                  type: array
+                                  items:
+                                    type: string
+                                query:
                                   type: array
                                   items:
                                     type: string
@@ -1084,6 +1107,18 @@ paths:
                                         - warning
                                         - info
                                     - type: "null"
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/def-0"
         "401":
           description: Default Response
           content:
@@ -1157,6 +1192,14 @@ paths:
                           - type: string
                             minLength: 1
                             maxLength: 8192
+                          - type: "null"
+                    query:
+                      type: object
+                      additionalProperties:
+                        anyOf:
+                          - type: string
+                            minLength: 1
+                            maxLength: 4096
                           - type: "null"
                     apiKey:
                       anyOf:
@@ -1245,9 +1288,14 @@ paths:
                         type: object
                         required:
                           - headers
+                          - query
                           - apiKey
                         properties:
                           headers:
+                            type: array
+                            items:
+                              type: string
+                          query:
                             type: array
                             items:
                               type: string
@@ -1338,6 +1386,14 @@ paths:
                           - type: string
                             minLength: 1
                             maxLength: 8192
+                          - type: "null"
+                    query:
+                      type: object
+                      additionalProperties:
+                        anyOf:
+                          - type: string
+                            minLength: 1
+                            maxLength: 4096
                           - type: "null"
                     apiKey:
                       anyOf:
@@ -1536,9 +1592,14 @@ paths:
                         type: object
                         required:
                           - headers
+                          - query
                           - apiKey
                         properties:
                           headers:
+                            type: array
+                            items:
+                              type: string
+                          query:
                             type: array
                             items:
                               type: string
@@ -1654,6 +1715,14 @@ paths:
                             minLength: 1
                             maxLength: 8192
                           - type: "null"
+                    query:
+                      type: object
+                      additionalProperties:
+                        anyOf:
+                          - type: string
+                            minLength: 1
+                            maxLength: 4096
+                          - type: "null"
                     apiKey:
                       anyOf:
                         - type: string
@@ -1743,9 +1812,14 @@ paths:
                         type: object
                         required:
                           - headers
+                          - query
                           - apiKey
                         properties:
                           headers:
+                            type: array
+                            items:
+                              type: string
+                          query:
                             type: array
                             items:
                               type: string
@@ -3304,6 +3378,7 @@ paths:
                 type: object
                 required:
                   - monitors
+                  - needsAttention
                   - openIncidents
                   - openDrift
                   - checksLast24h
@@ -3327,6 +3402,9 @@ paths:
                         type: integer
                       paused:
                         type: integer
+                  needsAttention:
+                    type: integer
+                    description: Enabled monitors that are down or have open breaking drift
                   openIncidents:
                     type: integer
                   openDrift:

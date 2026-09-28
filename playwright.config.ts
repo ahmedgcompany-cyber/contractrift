@@ -40,6 +40,8 @@ export default defineConfig({
         ENCRYPTION_KEY: Buffer.alloc(32, 9).toString('base64'),
         ALLOW_PRIVATE_TARGETS: 'true',
         SCHEDULER_TICK_MS: '1000',
+        // The suite signs in once per test from one IP; the production default is 10/min.
+        AUTH_RATE_LIMIT_PER_MINUTE: '100',
         LOG_LEVEL: 'warn',
       },
       reuseExistingServer: false,

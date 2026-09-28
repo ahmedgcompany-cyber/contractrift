@@ -3,6 +3,7 @@ import { ConfigError, loadConfig } from './config.js';
 import { openDatabase } from './db/client.js';
 import { Jobs } from './jobs/jobs.js';
 import { closeHttpAgents } from './lib/http-client.js';
+import { reencryptAll } from './services/keys.js';
 
 async function main() {
   let config: ReturnType<typeof loadConfig>;
@@ -22,6 +23,15 @@ async function main() {
   app.log.info({ driver: database.driver, allowPrivateTargets: config.allowPrivateTargets }, 'database ready, migrations applied');
   if (database.driver === 'pglite' && config.nodeEnv === 'production') {
     app.log.warn('Running production on embedded PGlite. Set DATABASE_URL to a PostgreSQL server for multi-instance or high-volume use.');
+  }
+
+  if (config.decryptionKeys.length > 1) {
+    // Key rotation in progress: move every secret to the current key.
+    const report = await reencryptAll(ctx);
+    app.log.info({ report }, 'secrets re-encrypted with the current ENCRYPTION_KEY');
+    if (report.monitors.failed || report.channels.failed) {
+      app.log.warn('Some secrets could not be decrypted with any configured key; they must be re-entered.');
+    }
   }
 
   const jobs = new Jobs(ctx);

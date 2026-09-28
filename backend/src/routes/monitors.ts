@@ -32,6 +32,7 @@ const Tag = Type.String({ minLength: 1, maxLength: 40, pattern: '^[A-Za-z0-9_.-]
 const SecretsPatch = Type.Object(
   {
     headers: Type.Optional(Type.Record(Type.String({ maxLength: 128 }), Nullable(Type.String({ minLength: 1, maxLength: 8192 })))),
+    query: Type.Optional(Type.Record(Type.String({ maxLength: 128 }), Nullable(Type.String({ minLength: 1, maxLength: 4096 })))),
     apiKey: Type.Optional(Nullable(Type.String({ minLength: 1, maxLength: 4096 }))),
   },
   { additionalProperties: false, description: 'Secret values are write-only. `null` removes a secret; omitting keeps it.' },
@@ -63,17 +64,30 @@ export const monitorRoutes =
         config: viewer,
         schema: {
           tags,
-          summary: 'List monitors with recent check durations and open drift counts',
+          summary: 'List monitors (paginated, ordered by name) with recent check durations and open drift counts',
           querystring: Type.Object({
             q: Type.Optional(Type.String({ maxLength: 200 })),
             kind: Type.Optional(MonitorKindSchema),
             status: Type.Optional(MonitorStatusSchema),
             tag: Type.Optional(Tag),
+            limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 200, default: 50 })),
+            offset: Type.Optional(Type.Integer({ minimum: 0, default: 0 })),
           }),
-          response: { 200: Type.Object({ monitors: Type.Array(MonitorListItem) }), ...errors(401) },
+          response: {
+            200: Type.Object({
+              monitors: Type.Array(MonitorListItem),
+              total: Type.Integer(),
+              limit: Type.Integer(),
+              offset: Type.Integer(),
+            }),
+            ...errors(400, 401),
+          },
         },
       },
-      async (req) => ({ monitors: (await listMonitors(ctx, req.query)) as never }),
+      async (req) => {
+        const page = await listMonitors(ctx, req.query);
+        return { monitors: page.items as never, total: page.total, limit: page.limit, offset: page.offset };
+      },
     );
 
     app.post(

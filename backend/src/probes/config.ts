@@ -80,9 +80,13 @@ export const McpConfig = Type.Object(
 );
 export type McpConfig = Static<typeof McpConfig>;
 
+/** Secret URL query parameters (for APIs that authenticate with e.g. ?api_key=). */
+const QueryMap = Type.Record(Type.String({ pattern: '^[A-Za-z0-9_.~\\[\\]-]{1,128}$' }), Type.String({ maxLength: 4096 }));
+
 export const ProbeSecrets = Type.Object(
   {
     headers: Type.Optional(HeaderMap),
+    query: Type.Optional(QueryMap),
     apiKey: Type.Optional(Type.String({ minLength: 1, maxLength: 4096 })),
   },
   { additionalProperties: false },

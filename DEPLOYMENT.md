@@ -105,6 +105,17 @@ Migrations in `database/migrations` run automatically at startup (idempotent; tr
 2. Deploy the new version; it migrates on boot.
 3. Watch `/readyz` and logs.
 
+## Rotating ENCRYPTION_KEY
+
+1. `npm run gen-key` → new key.
+2. Set `ENCRYPTION_KEY=<new>` and `ENCRYPTION_KEY_PREVIOUS=<old>` (comma-separate several old keys).
+3. Restart. At startup every monitor secret and channel URL/secret is re-encrypted with the new key
+   (log line `secrets re-encrypted…`, audit action `secrets.reencrypted`). Or run `npm run rotate-key -w backend`
+   (exit code 1 if any value can't be decrypted with any configured key).
+4. When the report shows `failed: 0`, remove `ENCRYPTION_KEY_PREVIOUS` and restart.
+
+With several instances, give all of them both keys before restarting any.
+
 ## Rollback
 
 Migrations are forward-only. To roll back application code across a schema change, restore the

@@ -9,7 +9,20 @@ export function statusAccepted(status: number, expected: readonly number[]): boo
 }
 
 export function secretValues(secrets: ProbeSecrets): string[] {
-  return [...Object.values(secrets.headers ?? {}), ...(secrets.apiKey ? [secrets.apiKey] : [])];
+  return [...Object.values(secrets.headers ?? {}), ...Object.values(secrets.query ?? {}), ...(secrets.apiKey ? [secrets.apiKey] : [])];
+}
+
+/** Adds secret query parameters to a URL at request time; they are never stored in `config.url`. */
+export function withSecretQuery(url: string, secrets: ProbeSecrets): string {
+  const entries = Object.entries(secrets.query ?? {});
+  if (!entries.length) return url;
+  try {
+    const u = new URL(url);
+    for (const [k, v] of entries) u.searchParams.set(k, v);
+    return u.toString();
+  } catch {
+    return url; // invalid URL: let the request layer report INVALID_URL
+  }
 }
 
 export function failureFromError(err: unknown, durationMs: number): ProbeOutcome {
@@ -37,7 +50,7 @@ export async function runHttpProbe(cfg: HttpConfig, secrets: ProbeSecrets, ctx: 
   let res: Awaited<ReturnType<typeof outboundRequest>>;
   try {
     res = await outboundRequest({
-      url: cfg.url,
+      url: withSecretQuery(cfg.url, secrets),
       method: cfg.method,
       headers,
       body: cfg.method === 'GET' || cfg.method === 'HEAD' ? undefined : cfg.body,

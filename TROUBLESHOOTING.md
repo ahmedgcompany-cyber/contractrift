@@ -25,6 +25,8 @@ Each entry: **Problem · Cause · Fix.** Logs are JSON (pino); every API error i
 
 **Logged out immediately / cookie not stored** · `COOKIE_SECURE=true` over plain HTTP · use HTTPS, or `COOKIE_SECURE=false` for local testing only.
 
+**`RATE_LIMITED` on login during scripted tests** · 10/min per IP by default · raise `AUTH_RATE_LIMIT_PER_MINUTE` for that environment only.
+
 **Rate limits hit for everyone behind a proxy** · all requests appear from the proxy IP · `TRUST_PROXY=true`.
 
 ## Checks
@@ -39,7 +41,7 @@ Each entry: **Problem · Cause · Fix.** Logs are JSON (pino); every API error i
 | `RATE_LIMITED`               | Provider returned 429; increase the interval.                                                                                                                                    |
 | `PROTOCOL`                   | LLM/MCP response didn't have the expected structure (possibly a real upstream format change), or an MCP server supports neither protocol generation. Check the response excerpt. |
 | `RESPONSE_TOO_LARGE`         | Body > 1 MB. Query a smaller resource (e.g. `?limit=1`).                                                                                                                         |
-| `CONFIG`                     | Secrets can't be decrypted — `ENCRYPTION_KEY` changed. Re-enter secrets.                                                                                                         |
+| `CONFIG`                     | Secrets can't be decrypted — `ENCRYPTION_KEY` changed. Put the old key in `ENCRYPTION_KEY_PREVIOUS` and restart, or re-enter the secrets.                                        |
 | `ASSERTION` / `LATENCY`      | See the check's assertion list.                                                                                                                                                  |
 
 **Monitor never runs** · paused, or `SCHEDULER_ENABLED=false` on every instance · resume / enable a scheduler.

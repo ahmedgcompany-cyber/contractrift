@@ -87,7 +87,7 @@ export type Monitor = {
   ignorePaths: string[];
   tags: string[];
   config: Record<string, unknown>;
-  secretKeys: { headers: string[]; apiKey: boolean };
+  secretKeys: { headers: string[]; query: string[]; apiKey: boolean };
   status: Status;
   consecutiveFailures: number;
   lastCheckedAt: string | null;
@@ -203,7 +203,10 @@ export type AuditEntry = {
 };
 export type Summary = {
   monitors: { total: number; up: number; down: number; unknown: number; paused: number };
+  needsAttention: number;
   openIncidents: number;
   openDrift: { breaking: number; warning: number; info: number };
   checksLast24h: { total: number; failed: number };
 };
+
+export type MonitorPage = { monitors: MonitorListItem[]; total: number; limit: number; offset: number };

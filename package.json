@@ -1,6 +1,6 @@
 {
   "name": "tripline",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Self-hosted monitor that detects when the REST APIs, LLM APIs and MCP servers you depend on go down or silently change.",
   "license": "MIT",

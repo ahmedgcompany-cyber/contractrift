@@ -3,7 +3,8 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     environment: 'node',
-    include: ['test/**/*.test.ts'],
+    // test/live hits real third-party services; it runs only via `npm run test:live` (vitest.live.config.ts).
+    include: ['test/unit/**/*.test.ts', 'test/integration/**/*.test.ts'],
     testTimeout: 20_000,
     hookTimeout: 30_000,
     // PGlite instances are memory-heavy; keep integration files from all running at once.

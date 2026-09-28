@@ -85,8 +85,9 @@ npm run upstreams -w backend              # fake upstreams :4010 (needs ALLOW_PR
 
 ```bash
 npm run typecheck && npm run lint
-npm test                                  # 134 Vitest tests (unit + integration, PGlite in-memory)
-npm run build && npm run test:e2e         # 10 Playwright tests (PW_CHANNEL=chrome to use installed Chrome)
+npm test                                  # 140 Vitest tests (unit + integration, PGlite in-memory)
+npm run test:live -w backend              # opt-in, real external services (see test/live/live.test.ts)
+npm run build && npm run test:e2e         # 11 Playwright tests (PW_CHANNEL=chrome to use installed Chrome)
 TEST_DATABASE_URL=postgres://… npm test   # against real PostgreSQL (DROPS schemas!)
 ```
 
@@ -96,9 +97,7 @@ Docker/compose files and CI exist but were never executed in the authoring envir
 
 ## Known issues
 
-Canonical list: PROJECT_STATUS.md. Highlights: no real provider verification; Docker/PostgreSQL
-mode untested locally; no key rotation; secrets in URLs are not protected; `GET /monitors` not
-paginated; in-memory rate limiting; static files indexed at startup (restart after rebuild).
+Canonical list: PROJECT_STATUS.md. Highlights: OpenAI/Anthropic cloud APIs never called (no keys); drift events/incidents/audit never pruned; in-memory rate limiting; static files indexed at startup (restart after rebuild).
 
 ## Development rules — do NOT break
 
@@ -120,5 +119,5 @@ paginated; in-memory rate limiting; static files indexed at startup (restart aft
 
 ## Future work
 
-See ROADMAP.md. Highest value next: run CI; verify against real providers; key rotation;
-secret query params; pagination; drift-event retention.
+See ROADMAP.md. Highest value next: run the live suite with OpenAI/Anthropic keys; drift-event retention;
+shared rate-limit store; email notifications.

@@ -58,10 +58,10 @@ updates. CI runs `npm audit --omit=dev --audit-level=high`.
 
 - **SSRF by design:** editors can make the server request any public URL (that is the product).
   With `ALLOW_PRIVATE_TARGETS=true` they can reach internal services — add network egress rules.
-- **Credentials in URLs** (e.g. `?api_key=`) are stored and shown in plain text. Use secret
-  headers. Secret query parameters are on the roadmap.
-- **Key rotation** for `ENCRYPTION_KEY` is not implemented; changing it makes stored secrets
-  unreadable (checks then fail with `CONFIG` and secrets must be re-entered).
+- **Credentials typed into the URL field** are stored and shown in plain text. Use secret headers
+  or **secret URL parameters** (encrypted, appended only at request time, redacted from excerpts).
+- **Key rotation** is supported via `ENCRYPTION_KEY_PREVIOUS` (see DEPLOYMENT.md). Changing the key
+  _without_ listing the old one makes stored secrets unreadable (`CONFIG` errors).
 - **No MFA / SSO**, no email-based password reset (admin reset and CLI recovery only).
 - ReDoS protection is heuristic, not a linear-time engine.
 - Ajv compiles user-supplied JSON Schemas (editor role only); extremely large schemas could

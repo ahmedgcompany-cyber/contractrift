@@ -243,7 +243,11 @@ export function MonitorDetailPage() {
                   <dd className="mono">{m.ignorePaths.length ? m.ignorePaths.join(', ') : '—'}</dd>
                   <dt>Secrets</dt>
                   <dd>
-                    {[...m.secretKeys.headers.map((h) => `header ${h}`), ...(m.secretKeys.apiKey ? ['API key'] : [])].join(', ') || '—'}
+                    {[
+                      ...m.secretKeys.headers.map((h) => `header ${h}`),
+                      ...(m.secretKeys.query ?? []).map((q) => `URL parameter ${q}`),
+                      ...(m.secretKeys.apiKey ? ['API key'] : []),
+                    ].join(', ') || '—'}
                     <span className="cell-sub"> (values never shown)</span>
                   </dd>
                   <dt>Tags</dt>

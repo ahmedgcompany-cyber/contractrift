@@ -9,8 +9,13 @@ export type AppConfig = {
   databaseUrl: string | undefined;
   /** Directory for embedded PGlite data; `memory://` for an in-memory database. */
   pgliteDataDir: string;
+  /** Key used for all new encryption. */
   encryptionKey: Buffer;
+  /** Current key first, then ENCRYPTION_KEY_PREVIOUS keys (rotation). */
+  decryptionKeys: Buffer[];
   sessionTtlHours: number;
+  /** Per-IP limit for login, setup and password-change requests. */
+  authRateLimitPerMinute: number;
   cookieSecure: boolean;
   trustProxy: boolean;
   logLevel: string;
@@ -51,6 +56,22 @@ export function parseEncryptionKey(raw: string | undefined): Buffer {
   return key;
 }
 
+/** ENCRYPTION_KEY_PREVIOUS: comma-separated old keys still accepted for decryption during rotation. */
+export function parsePreviousKeys(raw: string | undefined): Buffer[] {
+  if (!raw) return [];
+  return raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((k, i) => {
+      try {
+        return parseEncryptionKey(k);
+      } catch {
+        throw new ConfigError(`ENCRYPTION_KEY_PREVIOUS entry ${i + 1} must be 32 bytes encoded as base64.`);
+      }
+    });
+}
+
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   const nodeEnv = (env.NODE_ENV ?? 'development') as AppConfig['nodeEnv'];
   if (!['development', 'production', 'test'].includes(nodeEnv)) {
@@ -63,6 +84,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   } catch {
     throw new ConfigError(`APP_URL is not a valid URL: "${appUrl}"`);
   }
+  const encryptionKey = parseEncryptionKey(env.ENCRYPTION_KEY);
   const defaultDist = path.resolve(import.meta.dirname, '../../frontend/dist');
 
   return {
@@ -72,7 +94,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     appUrl,
     databaseUrl: env.DATABASE_URL || undefined,
     pgliteDataDir: env.PGLITE_DATA_DIR ?? path.resolve(import.meta.dirname, '../../data/pglite'),
-    encryptionKey: parseEncryptionKey(env.ENCRYPTION_KEY),
+    encryptionKey,
+    decryptionKeys: [encryptionKey, ...parsePreviousKeys(env.ENCRYPTION_KEY_PREVIOUS)],
+    authRateLimitPerMinute: int('AUTH_RATE_LIMIT_PER_MINUTE', env.AUTH_RATE_LIMIT_PER_MINUTE, 10, 1, 10_000),
     sessionTtlHours: int('SESSION_TTL_HOURS', env.SESSION_TTL_HOURS, 168, 1, 24 * 90),
     cookieSecure: bool(env.COOKIE_SECURE, nodeEnv === 'production'),
     trustProxy: bool(env.TRUST_PROXY, false),

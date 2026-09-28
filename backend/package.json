@@ -1,6 +1,6 @@
 {
   "name": "@tripline/backend",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "main": "dist/index.js",
@@ -17,7 +17,9 @@
     "openapi": "tsx src/openapi-export.ts",
     "seed:demo": "tsx --env-file-if-exists=../.env ../database/seeds/demo.ts",
     "reset-password": "tsx --env-file-if-exists=../.env src/cli/reset-password.ts",
-    "upstreams": "tsx test/support/run-upstreams.ts"
+    "upstreams": "tsx test/support/run-upstreams.ts",
+    "rotate-key": "tsx --env-file-if-exists=../.env src/cli/rotate-key.ts",
+    "test:live": "vitest run --config vitest.live.config.ts"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.8",

@@ -139,7 +139,9 @@ status. Known codes: `VALIDATION_ERROR` 400, `UNAUTHENTICATED` 401, `FORBIDDEN` 
 
 Environment variables only (see `.env.example`, documented in DEVELOPER_GUIDE.md).
 `ENCRYPTION_KEY` (32 bytes, base64) encrypts monitor secrets and channel URLs/secrets. Losing
-it makes stored secrets unrecoverable (documented). Key rotation: not implemented (ROADMAP).
+it makes stored secrets unrecoverable (documented). **Rotation:** set the new key as `ENCRYPTION_KEY` and the old one(s)
+in `ENCRYPTION_KEY_PREVIOUS`; decryption tries each key (GCM authentication identifies the right one) and
+startup / `npm run rotate-key` re-encrypts everything with the current key (`services/keys.ts`).
 
 ## 11. Caching
 

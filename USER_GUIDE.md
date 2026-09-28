@@ -35,6 +35,8 @@ without saving anything — the result shows each check and how many JSON paths 
 - **URL, method, body, expected status codes** (empty = any 2xx).
 - **Secret headers** (e.g. `Authorization: Bearer …`) are encrypted and never shown again.
   Put credentials here, **not in the URL** — URLs are stored and displayed in plain text.
+- **Secret URL parameters** (e.g. `api_key`) for APIs that authenticate via the query string:
+  stored encrypted and appended to the URL only when the request is sent.
 - **Assertions** (optional): JSONPath subset `$.a.b[0].c` / `$["odd key"]` with operators
   `exists, notExists, equals, notEquals, contains, matches (regex), type, lt, gt`; and/or a
   JSON Schema for the whole body.
@@ -71,6 +73,10 @@ without saving anything — the result shows each check and how many JSON paths 
 - **Ignored paths**: one per line, prefix match (e.g. `$.data[].metadata`) — for parts of a
   response whose structure legitimately varies (maps keyed by IDs, free-form metadata).
 - Editing the request configuration or ignored paths **resets the baseline**.
+
+## Monitor list
+
+Monitors are listed by name, 25 per page, with search and filters by kind, status and tag.
 
 ## Monitor page
 

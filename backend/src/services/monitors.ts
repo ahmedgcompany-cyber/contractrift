@@ -1,4 +1,4 @@
-import { and, arrayOverlaps, asc, eq, ilike, or, type SQL, sql } from 'drizzle-orm';
+import { and, arrayOverlaps, asc, count, eq, ilike, or, type SQL, sql } from 'drizzle-orm';
 import { queryRows } from '../db/client.js';
 import { baselines, monitors } from '../db/schema.js';
 import { decryptJson, encryptJson } from '../lib/crypto.js';
@@ -26,12 +26,12 @@ export type MonitorInput = {
 };
 
 /** `null` removes a secret, omission keeps it. */
-export type SecretsPatch = { headers?: Record<string, string | null>; apiKey?: string | null };
+export type SecretsPatch = { headers?: Record<string, string | null>; query?: Record<string, string | null>; apiKey?: string | null };
 
 export type MonitorPatch = Partial<Omit<MonitorInput, 'kind'>>;
 
 export function readSecrets(ctx: Ctx, row: Pick<MonitorRow, 'secretsEnc'>): ProbeSecrets {
-  return row.secretsEnc ? decryptJson<ProbeSecrets>(row.secretsEnc, ctx.config.encryptionKey) : {};
+  return row.secretsEnc ? decryptJson<ProbeSecrets>(row.secretsEnc, ctx.config.decryptionKeys) : {};
 }
 
 export function applySecretsPatch(current: ProbeSecrets, patch: SecretsPatch | undefined): ProbeSecrets {
@@ -41,8 +41,14 @@ export function applySecretsPatch(current: ProbeSecrets, patch: SecretsPatch | u
     for (const existing of Object.keys(headers)) if (existing.toLowerCase() === k.toLowerCase()) delete headers[existing];
     if (v !== null) headers[k] = v;
   }
+  const query: Record<string, string> = { ...current.query };
+  for (const [k, v] of Object.entries(patch.query ?? {})) {
+    delete query[k];
+    if (v !== null) query[k] = v;
+  }
   const next: ProbeSecrets = {};
   if (Object.keys(headers).length) next.headers = headers;
+  if (Object.keys(query).length) next.query = query;
   const apiKey = patch.apiKey === undefined ? current.apiKey : patch.apiKey;
   if (apiKey) next.apiKey = apiKey;
   return normalizeSecrets(next);
@@ -51,7 +57,10 @@ export function applySecretsPatch(current: ProbeSecrets, patch: SecretsPatch | u
 /** API representation: never includes secret values, only which secrets are set. */
 export function toApiMonitor(row: MonitorRow, secrets: ProbeSecrets) {
   const { secretsEnc: _omit, ...rest } = row;
-  return { ...rest, secretKeys: { headers: Object.keys(secrets.headers ?? {}), apiKey: !!secrets.apiKey } };
+  return {
+    ...rest,
+    secretKeys: { headers: Object.keys(secrets.headers ?? {}), query: Object.keys(secrets.query ?? {}), apiKey: !!secrets.apiKey },
+  };
 }
 
 function checkCommon(input: Partial<MonitorInput>) {
@@ -120,7 +129,11 @@ export type MonitorFilters = {
   kind?: MonitorKind | undefined;
   status?: MonitorRow['status'] | undefined;
   tag?: string | undefined;
+  limit?: number | undefined;
+  offset?: number | undefined;
 };
+
+export const DEFAULT_PAGE_SIZE = 50;
 
 export async function listMonitors(ctx: Ctx, f: MonitorFilters) {
   const where: SQL[] = [];
@@ -131,12 +144,19 @@ export async function listMonitors(ctx: Ctx, f: MonitorFilters) {
   if (f.kind) where.push(eq(monitors.kind, f.kind));
   if (f.status) where.push(eq(monitors.status, f.status));
   if (f.tag) where.push(arrayOverlaps(monitors.tags, [f.tag.toLowerCase()]));
+  const whereSql = where.length ? and(...where) : undefined;
+  const limit = f.limit ?? DEFAULT_PAGE_SIZE;
+  const offset = f.offset ?? 0;
+  const [countRow] = await ctx.db.select({ n: count() }).from(monitors).where(whereSql);
+  const total = countRow?.n ?? 0;
   const rows = await ctx.db
     .select()
     .from(monitors)
-    .where(where.length ? and(...where) : undefined)
-    .orderBy(asc(monitors.name));
-  if (rows.length === 0) return [];
+    .where(whereSql)
+    .orderBy(asc(monitors.name), asc(monitors.id))
+    .limit(limit)
+    .offset(offset);
+  if (rows.length === 0) return { items: [], total, limit, offset };
 
   // Recent durations for sparklines in ONE query (avoids N+1 per monitor).
   const ids = rows.map((r) => r.id);
@@ -167,11 +187,12 @@ export async function listMonitors(ctx: Ctx, f: MonitorFilters) {
   );
   const driftById = new Map(drift.map((r) => [r.monitor_id, { open: r.n, worst: r.worst }]));
 
-  return rows.map((r) => ({
+  const items = rows.map((r) => ({
     ...toApiMonitor(r, readSecrets(ctx, r)),
     recent: byId.get(r.id) ?? [],
     openDrift: driftById.get(r.id) ?? { open: 0, worst: null },
   }));
+  return { items, total, limit, offset };
 }
 
 export async function updateMonitor(ctx: Ctx, id: string, patch: MonitorPatch, actor: Actor) {
@@ -207,7 +228,11 @@ export async function updateMonitor(ctx: Ctx, id: string, patch: MonitorPatch, a
   // A different request (or ignore list) makes the learned structure meaningless: relearn it.
   if (configChanged || ignoreChanged) await ctx.db.delete(baselines).where(eq(baselines.monitorId, id));
   const changedSecrets = patch.secrets
-    ? { headers: Object.keys(patch.secrets.headers ?? {}), apiKey: patch.secrets.apiKey !== undefined }
+    ? {
+        headers: Object.keys(patch.secrets.headers ?? {}),
+        query: Object.keys(patch.secrets.query ?? {}),
+        apiKey: patch.secrets.apiKey !== undefined,
+      }
     : undefined;
   await audit(ctx, actor, {
     action: 'monitor.updated',

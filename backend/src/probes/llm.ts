@@ -3,7 +3,7 @@ import type { Signature } from '../drift/types.js';
 import { outboundRequest } from '../lib/http-client.js';
 import { evaluateTextAssertion } from './assertions.js';
 import type { LlmConfig, ProbeSecrets } from './config.js';
-import { failureFromError, secretValues } from './http.js';
+import { failureFromError, secretValues, withSecretQuery } from './http.js';
 import { type ProbeContext, type ProbeOutcome, redactExcerpt, summarize } from './types.js';
 
 export const DEFAULT_BASE_URL = { openai: 'https://api.openai.com/v1', anthropic: 'https://api.anthropic.com' } as const;
@@ -90,7 +90,7 @@ export async function runLlmProbe(cfg: LlmConfig, secrets: ProbeSecrets, ctx: Pr
   let res: Awaited<ReturnType<typeof outboundRequest>>;
   try {
     res = await outboundRequest({
-      url: req.url,
+      url: withSecretQuery(req.url, secrets),
       method: 'POST',
       headers: req.headers,
       body: req.body,

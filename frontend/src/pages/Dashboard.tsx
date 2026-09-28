@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router';
-import { api, type DriftEvent, type Incident, type MonitorListItem, type Summary } from '../api';
+import { api, type DriftEvent, type Incident, type MonitorPage, type Summary } from '../api';
 import { useAuth } from '../auth';
 import { Empty, ErrorNote, Loading, PageHead, SeverityBadge, Sparkline, StatusBadge } from '../components/ui';
 import { ago, duration, targetOf } from '../format';
@@ -11,7 +11,7 @@ export function DashboardPage() {
   const summary = useQuery({ queryKey: ['summary'], queryFn: () => api.get<Summary>('/summary'), refetchInterval: 15_000 });
   const monitors = useQuery({
     queryKey: ['monitors', {}],
-    queryFn: () => api.get<{ monitors: MonitorListItem[] }>('/monitors'),
+    queryFn: () => api.get<MonitorPage>('/monitors?limit=12'),
     refetchInterval: 15_000,
   });
   const drift = useQuery({
@@ -29,7 +29,7 @@ export function DashboardPage() {
   if (summary.error) return <ErrorNote error={summary.error} retry={() => summary.refetch()} />;
   const s = summary.data!;
   const list = monitors.data?.monitors ?? [];
-  const attention = list.filter((m) => m.enabled && (m.status === 'down' || m.openDrift.worst === 'breaking'));
+  const attention = s.needsAttention;
 
   if (s.monitors.total === 0) {
     return (
@@ -59,11 +59,7 @@ export function DashboardPage() {
     <>
       <PageHead
         eyebrow="Overview"
-        title={
-          attention.length
-            ? `${attention.length} dependenc${attention.length === 1 ? 'y needs' : 'ies need'} attention`
-            : 'All upstreams holding steady'
-        }
+        title={attention ? `${attention} dependenc${attention === 1 ? 'y needs' : 'ies need'} attention` : 'All upstreams holding steady'}
         sub={`${s.monitors.total} monitor${s.monitors.total === 1 ? '' : 's'} · refreshed every 15 s`}
         actions={
           can('editor') ? (
@@ -175,7 +171,7 @@ export function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {list.slice(0, 12).map((m) => (
+              {list.map((m) => (
                 <tr key={m.id} className="clickable" onClick={() => nav(`/monitors/${m.id}`)}>
                   <td>
                     <StatusBadge status={m.status} enabled={m.enabled} />

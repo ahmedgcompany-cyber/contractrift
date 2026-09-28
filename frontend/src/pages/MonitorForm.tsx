@@ -46,6 +46,9 @@ type FormState = {
   existingSecretHeaders: string[];
   removedSecretHeaders: string[];
   newSecretHeaders: KV[];
+  existingSecretQuery: string[];
+  removedSecretQuery: string[];
+  newSecretQuery: KV[];
   hasApiKey: boolean;
   apiKey: string;
   clearApiKey: boolean;
@@ -88,6 +91,9 @@ const blank: FormState = {
   existingSecretHeaders: [],
   removedSecretHeaders: [],
   newSecretHeaders: [],
+  existingSecretQuery: [],
+  removedSecretQuery: [],
+  newSecretQuery: [],
   hasApiKey: false,
   apiKey: '',
   clearApiKey: false,
@@ -166,6 +172,7 @@ function fromMonitor(m: Monitor): FormState {
     toolArgs: c.toolCall ? JSON.stringify(c.toolCall.arguments ?? {}, null, 2) : '{}',
     expectText: c.toolCall?.expectText ?? '',
     existingSecretHeaders: m.secretKeys.headers,
+    existingSecretQuery: m.secretKeys.query ?? [],
     hasApiKey: m.secretKeys.apiKey,
   };
 }
@@ -252,8 +259,12 @@ function buildSecrets(f: FormState) {
   const headers: Record<string, string | null> = {};
   for (const h of f.removedSecretHeaders) headers[h] = null;
   for (const r of f.newSecretHeaders) if (r.k.trim() && r.v) headers[r.k.trim()] = r.v;
-  const out: { headers?: Record<string, string | null>; apiKey?: string | null } = {};
+  const query: Record<string, string | null> = {};
+  for (const q of f.removedSecretQuery) query[q] = null;
+  for (const r of f.newSecretQuery) if (r.k.trim() && r.v) query[r.k.trim()] = r.v;
+  const out: { headers?: Record<string, string | null>; query?: Record<string, string | null>; apiKey?: string | null } = {};
   if (Object.keys(headers).length) out.headers = headers;
+  if (Object.keys(query).length) out.query = query;
   if (f.kind === 'llm') {
     if (f.apiKey) out.apiKey = f.apiKey;
     else if (f.clearApiKey) out.apiKey = null;
@@ -267,12 +278,14 @@ function KVEditor({
   keyLabel,
   valueLabel,
   secret,
+  addLabel,
 }: {
   rows: KV[];
   onChange: (r: KV[]) => void;
   keyLabel: string;
   valueLabel: string;
   secret?: boolean;
+  addLabel?: string;
 }) {
   return (
     <div className="row-editor">
@@ -304,7 +317,7 @@ function KVEditor({
       ))}
       <div>
         <button type="button" className="btn small" onClick={() => onChange([...rows, { k: '', v: '' }])}>
-          + Add {secret ? 'secret header' : 'header'}
+          + Add {addLabel ?? (secret ? 'secret header' : 'header')}
         </button>
       </div>
     </div>
@@ -668,6 +681,44 @@ export function MonitorFormPage() {
                 keyLabel="Header name"
                 valueLabel="Secret value"
                 secret
+              />
+            </div>
+            {f.existingSecretQuery.length ? (
+              <div>
+                <div className="label-text">Stored secret URL parameters</div>
+                {f.existingSecretQuery.map((q) => {
+                  const removed = f.removedSecretQuery.includes(q);
+                  return (
+                    <div key={q} className="check" style={{ marginTop: 6 }}>
+                      <code style={{ textDecoration: removed ? 'line-through' : undefined }}>?{q}=••••••••</code>
+                      <button
+                        type="button"
+                        className="btn small ghost"
+                        onClick={() =>
+                          set('removedSecretQuery', removed ? f.removedSecretQuery.filter((x) => x !== q) : [...f.removedSecretQuery, q])
+                        }
+                      >
+                        {removed ? 'Keep' : 'Remove'}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
+            <div>
+              <div className="label-text" style={{ marginBottom: 6 }}>
+                New secret URL parameters
+              </div>
+              <div className="help" style={{ fontSize: '0.78rem', color: 'var(--ink-3)', marginBottom: 6 }}>
+                For APIs that authenticate with e.g. <code>?api_key=</code>. Added to the URL at request time; never stored in the URL.
+              </div>
+              <KVEditor
+                rows={f.newSecretQuery}
+                onChange={(r) => set('newSecretQuery', r)}
+                keyLabel="Parameter name"
+                valueLabel="Secret value"
+                secret
+                addLabel="secret URL parameter"
               />
             </div>
             <div>

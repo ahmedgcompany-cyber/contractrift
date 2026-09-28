@@ -36,49 +36,53 @@ tripline/
 
 ## Commands
 
-| Task                     | Command                                                                              |
-| ------------------------ | ------------------------------------------------------------------------------------ |
-| Install                  | `npm ci`                                                                             |
-| Dev (API, watch)         | `npm run dev`                                                                        |
-| Dev (UI, Vite :5173)     | `npm run dev:web`                                                                    |
-| Build everything         | `npm run build`                                                                      |
-| Start built app          | `npm start`                                                                          |
-| Typecheck                | `npm run typecheck`                                                                  |
-| Lint + format check      | `npm run lint`                                                                       |
-| Format                   | `npm run format`                                                                     |
-| Unit + integration tests | `npm test` (or `npm run test:unit`, `npm run test:integration`)                      |
-| E2E tests                | `npm run build && npm run test:e2e` (`PW_CHANNEL=chrome` to use installed Chrome)    |
-| Generate a migration     | edit `backend/src/db/schema.ts`, then `npm run db:generate`                          |
-| Apply migrations         | `npm run db:migrate` (also automatic at startup)                                     |
-| Regenerate OpenAPI       | `npm run openapi`                                                                    |
-| Local fake upstreams     | `npm run upstreams -w backend` (port 4010, `UPSTREAMS_PORT` to change)               |
-| Demo data                | `npm run seed:demo -w backend -- --upstreams http://127.0.0.1:4010` or `-- --public` |
-| Admin password recovery  | `npm run reset-password -w backend -- <email>`                                       |
-| Encryption key           | `npm run gen-key`                                                                    |
+| Task                              | Command                                                                              |
+| --------------------------------- | ------------------------------------------------------------------------------------ |
+| Install                           | `npm ci`                                                                             |
+| Dev (API, watch)                  | `npm run dev`                                                                        |
+| Dev (UI, Vite :5173)              | `npm run dev:web`                                                                    |
+| Build everything                  | `npm run build`                                                                      |
+| Start built app                   | `npm start`                                                                          |
+| Typecheck                         | `npm run typecheck`                                                                  |
+| Lint + format check               | `npm run lint`                                                                       |
+| Format                            | `npm run format`                                                                     |
+| Unit + integration tests          | `npm test` (or `npm run test:unit`, `npm run test:integration`)                      |
+| E2E tests                         | `npm run build && npm run test:e2e` (`PW_CHANNEL=chrome` to use installed Chrome)    |
+| Generate a migration              | edit `backend/src/db/schema.ts`, then `npm run db:generate`                          |
+| Apply migrations                  | `npm run db:migrate` (also automatic at startup)                                     |
+| Regenerate OpenAPI                | `npm run openapi`                                                                    |
+| Local fake upstreams              | `npm run upstreams -w backend` (port 4010, `UPSTREAMS_PORT` to change)               |
+| Demo data                         | `npm run seed:demo -w backend -- --upstreams http://127.0.0.1:4010` or `-- --public` |
+| Admin password recovery           | `npm run reset-password -w backend -- <email>`                                       |
+| Re-encrypt secrets (key rotation) | `npm run rotate-key -w backend`                                                      |
+| Live tests vs real services       | `npm run test:live -w backend` (see `backend/test/live/live.test.ts`)                |
+| Encryption key                    | `npm run gen-key`                                                                    |
 
 ## Environment variables
 
 Read once at startup by `backend/src/config.ts`; invalid values stop the process with exit code 2.
 
-| Variable                | Default                   | Description                                                                                      |
-| ----------------------- | ------------------------- | ------------------------------------------------------------------------------------------------ |
-| `ENCRYPTION_KEY`        | **required**              | 32 bytes, base64. AES-256-GCM key for monitor secrets and channel URLs.                          |
-| `NODE_ENV`              | `development`             | `development` \| `production` \| `test`. Production defaults cookies to Secure.                  |
-| `HOST`                  | `0.0.0.0`                 | Listen address.                                                                                  |
-| `PORT`                  | `3000`                    | Listen port.                                                                                     |
-| `APP_URL`               | `http://localhost:$PORT`  | Public URL: notification links and CSRF `Origin` check.                                          |
-| `DATABASE_URL`          | —                         | PostgreSQL URL. Empty → embedded PGlite.                                                         |
-| `PGLITE_DATA_DIR`       | `./data/pglite`           | PGlite directory; `memory://` for in-memory.                                                     |
-| `SESSION_TTL_HOURS`     | `168`                     | Sliding session lifetime (1 – 2160).                                                             |
-| `COOKIE_SECURE`         | `true` in production      | Secure flag on the session cookie (needs HTTPS).                                                 |
-| `TRUST_PROXY`           | `false`                   | Trust `X-Forwarded-*` (set behind a reverse proxy, for correct client IPs in rate limits/audit). |
-| `LOG_LEVEL`             | `info` (`silent` in test) | pino level.                                                                                      |
-| `ALLOW_PRIVATE_TARGETS` | `false`                   | Allow probes/webhooks to private, loopback, link-local addresses.                                |
-| `SCHEDULER_ENABLED`     | `true`                    | Run background jobs in this process.                                                             |
-| `SCHEDULER_CONCURRENCY` | `8`                       | Max checks in flight per process.                                                                |
-| `SCHEDULER_TICK_MS`     | `5000`                    | How often due monitors are claimed.                                                              |
-| `RETENTION_DAYS`        | `30`                      | Check results and finished deliveries older than this are deleted hourly.                        |
-| `FRONTEND_DIST`         | `frontend/dist`           | Built UI directory; empty = API only.                                                            |
+| Variable                     | Default                   | Description                                                                                                                            |
+| ---------------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `ENCRYPTION_KEY`             | **required**              | 32 bytes, base64. AES-256-GCM key for monitor secrets and channel URLs.                                                                |
+| `ENCRYPTION_KEY_PREVIOUS`    | —                         | Comma-separated old keys still accepted for decryption during rotation; at startup all secrets are re-encrypted with `ENCRYPTION_KEY`. |
+| `NODE_ENV`                   | `development`             | `development` \| `production` \| `test`. Production defaults cookies to Secure.                                                        |
+| `HOST`                       | `0.0.0.0`                 | Listen address.                                                                                                                        |
+| `PORT`                       | `3000`                    | Listen port.                                                                                                                           |
+| `APP_URL`                    | `http://localhost:$PORT`  | Public URL: notification links and CSRF `Origin` check.                                                                                |
+| `DATABASE_URL`               | —                         | PostgreSQL URL. Empty → embedded PGlite.                                                                                               |
+| `PGLITE_DATA_DIR`            | `./data/pglite`           | PGlite directory; `memory://` for in-memory.                                                                                           |
+| `SESSION_TTL_HOURS`          | `168`                     | Sliding session lifetime (1 – 2160).                                                                                                   |
+| `AUTH_RATE_LIMIT_PER_MINUTE` | `10`                      | Per-IP limit for login, setup and password change.                                                                                     |
+| `COOKIE_SECURE`              | `true` in production      | Secure flag on the session cookie (needs HTTPS).                                                                                       |
+| `TRUST_PROXY`                | `false`                   | Trust `X-Forwarded-*` (set behind a reverse proxy, for correct client IPs in rate limits/audit).                                       |
+| `LOG_LEVEL`                  | `info` (`silent` in test) | pino level.                                                                                                                            |
+| `ALLOW_PRIVATE_TARGETS`      | `false`                   | Allow probes/webhooks to private, loopback, link-local addresses.                                                                      |
+| `SCHEDULER_ENABLED`          | `true`                    | Run background jobs in this process.                                                                                                   |
+| `SCHEDULER_CONCURRENCY`      | `8`                       | Max checks in flight per process.                                                                                                      |
+| `SCHEDULER_TICK_MS`          | `5000`                    | How often due monitors are claimed.                                                                                                    |
+| `RETENTION_DAYS`             | `30`                      | Check results and finished deliveries older than this are deleted hourly.                                                              |
+| `FRONTEND_DIST`              | `frontend/dist`           | Built UI directory; empty = API only.                                                                                                  |
 
 Test/tooling only: `TEST_DATABASE_URL` (run integration tests against real PostgreSQL — the
 schema is **dropped** each run), `UPSTREAMS_PORT`, `PW_CHANNEL`, `CI`. Gate script:

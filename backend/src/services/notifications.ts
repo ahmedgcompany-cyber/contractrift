@@ -46,7 +46,7 @@ function validateUrl(kind: 'webhook' | 'slack', url: string) {
 
 export async function listChannels(ctx: Ctx) {
   const rows = await ctx.db.select().from(notificationChannels).orderBy(asc(notificationChannels.name));
-  return rows.map((r) => ({ ...toApi(r), hasSecret: !!decryptJson<ChannelSecret>(r.configEnc, ctx.config.encryptionKey).secret }));
+  return rows.map((r) => ({ ...toApi(r), hasSecret: !!decryptJson<ChannelSecret>(r.configEnc, ctx.config.decryptionKeys).secret }));
 }
 
 export type ChannelInput = {
@@ -95,7 +95,7 @@ export async function updateChannel(
 ) {
   const [row] = await ctx.db.select().from(notificationChannels).where(eq(notificationChannels.id, id));
   if (!row) throw notFound('Channel');
-  const current = decryptJson<ChannelSecret>(row.configEnc, ctx.config.encryptionKey);
+  const current = decryptJson<ChannelSecret>(row.configEnc, ctx.config.decryptionKeys);
   const next: ChannelSecret = { url: patch.url ?? current.url };
   const secret = patch.secret === undefined ? current.secret : patch.secret;
   if (secret) next.secret = secret;
@@ -160,7 +160,7 @@ function slackBody(p: NotificationPayload) {
 
 /** Sends one notification. Returns the HTTP status; throws on transport errors or non-2xx. */
 export async function send(ctx: Ctx, channel: ChannelRow, payload: NotificationPayload, deliveryId: string): Promise<number> {
-  const cfg = decryptJson<ChannelSecret>(channel.configEnc, ctx.config.encryptionKey);
+  const cfg = decryptJson<ChannelSecret>(channel.configEnc, ctx.config.decryptionKeys);
   const body = JSON.stringify(channel.kind === 'slack' ? slackBody(payload) : payload);
   const headers: Record<string, string> = {
     'content-type': 'application/json',

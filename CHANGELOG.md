@@ -2,6 +2,26 @@
 
 All notable changes to this project are documented here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow SemVer.
 
+## 0.2.0 — 2026-09-28
+
+### Added
+
+- **Encryption key rotation:** `ENCRYPTION_KEY_PREVIOUS` (comma-separated old keys) for decryption; all monitor secrets and channel URLs/secrets are re-encrypted with the current key at startup or via `npm run rotate-key -w backend`; audited as `secrets.reencrypted`.
+- **Secret URL query parameters** (`secrets.query`) for APIs that authenticate via the query string: stored encrypted, appended only at request time, redacted from excerpts, write-only in the API and UI.
+- **Pagination** of `GET /monitors` (`limit` 1–200, default 50; `offset`; response adds `total`, `limit`, `offset`); UI pager (25 per page).
+- `summary.needsAttention` (distinct monitors down or with open breaking drift), used by the dashboard headline.
+- `AUTH_RATE_LIMIT_PER_MINUTE` (default 10) for login/setup/password-change limits.
+- **Opt-in live test suite** against real services (`npm run test:live -w backend`): GitHub REST API, DeepWiki MCP (initialize-based), Hugging Face MCP (2026-07-28 stateless) including real tool calls, any OpenAI-compatible LLM server, and OpenAI/Anthropic when keys are provided.
+
+### Changed
+
+- Dashboard loads only the first 12 monitors; the attention count comes from the server.
+- Test fixtures record query strings.
+
+### Verified
+
+- Live: GitHub API, DeepWiki MCP, Hugging Face MCP (tool calls on both protocol generations), LM Studio (OpenAI-compatible) — all passed. OpenAI and Anthropic cloud APIs not tested (no keys).
+
 ## 0.1.0 — 2026-09-28
 
 First functional MVP.

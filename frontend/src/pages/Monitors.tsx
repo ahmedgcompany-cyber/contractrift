@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate, useSearchParams } from 'react-router';
-import { api, type MonitorListItem, qs } from '../api';
+import { api, type MonitorPage, qs } from '../api';
+
+const PAGE_SIZE = 25;
 import { useAuth } from '../auth';
 import { Empty, ErrorNote, Loading, PageHead, SeverityBadge, Sparkline, StatusBadge } from '../components/ui';
 import { ago, duration, interval, targetOf } from '../format';
@@ -17,9 +19,10 @@ export function MonitorsPage() {
     status: params.get('status') ?? '',
     tag: params.get('tag') ?? '',
   };
+  const page = Math.max(1, Number(params.get('page') ?? 1) || 1);
   const query = useQuery({
-    queryKey: ['monitors', filters],
-    queryFn: () => api.get<{ monitors: MonitorListItem[] }>(`/monitors${qs(filters)}`),
+    queryKey: ['monitors', filters, page],
+    queryFn: () => api.get<MonitorPage>(`/monitors${qs({ ...filters, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE })}`),
     refetchInterval: 15_000,
     placeholderData: (prev) => prev,
   });
@@ -27,9 +30,12 @@ export function MonitorsPage() {
     const next = new URLSearchParams(params);
     if (v) next.set(k, v);
     else next.delete(k);
+    if (k !== 'page') next.delete('page'); // new filter → back to the first page
     setParams(next, { replace: true });
   };
   const list = query.data?.monitors ?? [];
+  const total = query.data?.total ?? 0;
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const filtered = Object.values(filters).some(Boolean);
 
   return (
@@ -154,6 +160,24 @@ export function MonitorsPage() {
                 ))}
               </tbody>
             </table>
+            {total > PAGE_SIZE ? (
+              <nav className="pager" aria-label="Pagination">
+                <span className="cell-sub">
+                  {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} of {total}
+                </span>
+                <div className="actions">
+                  <button className="btn small" disabled={page <= 1} onClick={() => set('page', String(page - 1))}>
+                    Previous
+                  </button>
+                  <span className="cell-sub mono">
+                    {page} / {pages}
+                  </span>
+                  <button className="btn small" disabled={page >= pages} onClick={() => set('page', String(page + 1))}>
+                    Next
+                  </button>
+                </div>
+              </nav>
+            ) : null}
           </div>
         )}
       </section>

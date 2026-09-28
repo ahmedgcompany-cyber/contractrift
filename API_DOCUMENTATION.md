@@ -49,52 +49,52 @@ Every response carries `X-Request-Id` (an incoming `X-Request-Id` matching `[\w-
 ## Rate limits
 
 Global 600 requests/min per IP. Stricter: `POST /auth/login`, `/auth/setup`,
-`/auth/change-password` 10/min; `POST /monitors/test` and `/monitors/:id/run` 30/min;
+`/auth/change-password` 10/min (`AUTH_RATE_LIMIT_PER_MINUTE`); `POST /monitors/test` and `/monitors/:id/run` 30/min;
 `POST /channels/:id/test` 10/min.
 
 ## Endpoints
 
-| Method & path                    | Role                        | Purpose                                                                                                                        |
-| -------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| GET `/auth/setup-status`         | public                      | `{ needsSetup }`                                                                                                               |
-| POST `/auth/setup`               | public (only while 0 users) | `{ email, name, password }` → 201 `{ user }` + cookie                                                                          |
-| POST `/auth/login`               | public                      | `{ email, password }` → `{ user }` + cookie                                                                                    |
-| POST `/auth/logout`              | viewer                      | 204; deletes the session                                                                                                       |
-| GET `/auth/me`                   | viewer                      | `{ user, via: "session" \| "token" }`                                                                                          |
-| POST `/auth/change-password`     | viewer (session)            | `{ currentPassword, newPassword }` → 204; signs out other sessions                                                             |
-| GET `/users`                     | admin                       | `{ users }`                                                                                                                    |
-| POST `/users`                    | admin                       | `{ email, name, role, password }` → 201 (user must change password)                                                            |
-| PATCH `/users/:id`               | admin                       | `{ name?, role?, disabled? }` (last active admin protected)                                                                    |
-| POST `/users/:id/reset-password` | admin                       | `{ temporaryPassword }` (shown once)                                                                                           |
-| DELETE `/users/:id`              | admin                       | 204 (not self, not last admin)                                                                                                 |
-| GET `/tokens`                    | viewer                      | own tokens (no values)                                                                                                         |
-| POST `/tokens`                   | viewer (session)            | `{ name, expiresInDays? }` → 201 `{ token, apiToken }` — value shown once                                                      |
-| DELETE `/tokens/:id`             | viewer                      | revoke own token                                                                                                               |
-| GET `/monitors`                  | viewer                      | `?q=&kind=&status=&tag=` → `{ monitors }` incl. `recent` (last 30 `{d, ok}`) and `openDrift`                                   |
-| POST `/monitors`                 | editor                      | create (see below) → 201 `{ monitor }`                                                                                         |
-| POST `/monitors/test`            | editor                      | dry run, nothing stored: `{ kind, config, secrets?, timeoutMs?, monitorId? }`                                                  |
-| GET `/monitors/:id`              | viewer                      | `{ monitor }`                                                                                                                  |
-| PATCH `/monitors/:id`            | editor                      | partial update; changing `config`/`ignorePaths` resets the baseline                                                            |
-| DELETE `/monitors/:id`           | editor                      | 204; deletes all history                                                                                                       |
-| POST `/monitors/:id/run`         | editor                      | run + record now → `{ result, status, incident, baseline, drift }`                                                             |
-| GET `/monitors/:id/results`      | viewer                      | `?limit≤500&before=<id>` newest first                                                                                          |
-| GET `/monitors/:id/baseline`     | viewer                      | `{ state, samples, samplesRequired, paths[], signature, … }`                                                                   |
-| DELETE `/monitors/:id/baseline`  | editor                      | 204; relearn                                                                                                                   |
-| GET `/drift`                     | viewer                      | `?status=open\|accepted\|dismissed&monitorId=&limit`                                                                           |
-| GET `/drift/:id`                 | viewer                      | `{ event }`                                                                                                                    |
-| POST `/drift/:id/accept`         | editor                      | observed structure becomes the baseline                                                                                        |
-| POST `/drift/:id/dismiss`        | editor                      | mute this exact change set                                                                                                     |
-| GET `/incidents`                 | viewer                      | `?status=open\|resolved&monitorId=&limit`                                                                                      |
-| GET `/channels`                  | admin                       | `{ channels }` (URL/secret never returned; `target` = host)                                                                    |
-| POST `/channels`                 | admin                       | `{ name, kind: webhook\|slack, url, secret?, events?, enabled? }`                                                              |
-| PATCH `/channels/:id`            | admin                       | `{ name?, url?, secret? (null removes), events?, enabled? }`                                                                   |
-| DELETE `/channels/:id`           | admin                       | 204                                                                                                                            |
-| POST `/channels/:id/test`        | admin                       | `{ ok, status?, error? }`                                                                                                      |
-| GET `/channels/:id/deliveries`   | admin                       | recent deliveries                                                                                                              |
-| GET `/summary`                   | viewer                      | dashboard counters                                                                                                             |
-| GET `/gate`                      | viewer (token)              | `?tags=a,b&failOn=down,unknown,breaking,warning` (default `down,breaking`) → always 200 with `{ pass, evaluated, failures[] }` |
-| GET `/audit`                     | admin                       | `?limit&before`                                                                                                                |
-| GET `/healthz`, `/readyz`        | public (outside `/api`)     | liveness; DB readiness (503 if DB unreachable)                                                                                 |
+| Method & path                    | Role                        | Purpose                                                                                                                                                 |
+| -------------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET `/auth/setup-status`         | public                      | `{ needsSetup }`                                                                                                                                        |
+| POST `/auth/setup`               | public (only while 0 users) | `{ email, name, password }` → 201 `{ user }` + cookie                                                                                                   |
+| POST `/auth/login`               | public                      | `{ email, password }` → `{ user }` + cookie                                                                                                             |
+| POST `/auth/logout`              | viewer                      | 204; deletes the session                                                                                                                                |
+| GET `/auth/me`                   | viewer                      | `{ user, via: "session" \| "token" }`                                                                                                                   |
+| POST `/auth/change-password`     | viewer (session)            | `{ currentPassword, newPassword }` → 204; signs out other sessions                                                                                      |
+| GET `/users`                     | admin                       | `{ users }`                                                                                                                                             |
+| POST `/users`                    | admin                       | `{ email, name, role, password }` → 201 (user must change password)                                                                                     |
+| PATCH `/users/:id`               | admin                       | `{ name?, role?, disabled? }` (last active admin protected)                                                                                             |
+| POST `/users/:id/reset-password` | admin                       | `{ temporaryPassword }` (shown once)                                                                                                                    |
+| DELETE `/users/:id`              | admin                       | 204 (not self, not last admin)                                                                                                                          |
+| GET `/tokens`                    | viewer                      | own tokens (no values)                                                                                                                                  |
+| POST `/tokens`                   | viewer (session)            | `{ name, expiresInDays? }` → 201 `{ token, apiToken }` — value shown once                                                                               |
+| DELETE `/tokens/:id`             | viewer                      | revoke own token                                                                                                                                        |
+| GET `/monitors`                  | viewer                      | `?q=&kind=&status=&tag=&limit=1..200 (50)&offset=` → `{ monitors, total, limit, offset }`; each item incl. `recent` (last 30 `{d, ok}`) and `openDrift` |
+| POST `/monitors`                 | editor                      | create (see below) → 201 `{ monitor }`                                                                                                                  |
+| POST `/monitors/test`            | editor                      | dry run, nothing stored: `{ kind, config, secrets?, timeoutMs?, monitorId? }`                                                                           |
+| GET `/monitors/:id`              | viewer                      | `{ monitor }`                                                                                                                                           |
+| PATCH `/monitors/:id`            | editor                      | partial update; changing `config`/`ignorePaths` resets the baseline                                                                                     |
+| DELETE `/monitors/:id`           | editor                      | 204; deletes all history                                                                                                                                |
+| POST `/monitors/:id/run`         | editor                      | run + record now → `{ result, status, incident, baseline, drift }`                                                                                      |
+| GET `/monitors/:id/results`      | viewer                      | `?limit≤500&before=<id>` newest first                                                                                                                   |
+| GET `/monitors/:id/baseline`     | viewer                      | `{ state, samples, samplesRequired, paths[], signature, … }`                                                                                            |
+| DELETE `/monitors/:id/baseline`  | editor                      | 204; relearn                                                                                                                                            |
+| GET `/drift`                     | viewer                      | `?status=open\|accepted\|dismissed&monitorId=&limit`                                                                                                    |
+| GET `/drift/:id`                 | viewer                      | `{ event }`                                                                                                                                             |
+| POST `/drift/:id/accept`         | editor                      | observed structure becomes the baseline                                                                                                                 |
+| POST `/drift/:id/dismiss`        | editor                      | mute this exact change set                                                                                                                              |
+| GET `/incidents`                 | viewer                      | `?status=open\|resolved&monitorId=&limit`                                                                                                               |
+| GET `/channels`                  | admin                       | `{ channels }` (URL/secret never returned; `target` = host)                                                                                             |
+| POST `/channels`                 | admin                       | `{ name, kind: webhook\|slack, url, secret?, events?, enabled? }`                                                                                       |
+| PATCH `/channels/:id`            | admin                       | `{ name?, url?, secret? (null removes), events?, enabled? }`                                                                                            |
+| DELETE `/channels/:id`           | admin                       | 204                                                                                                                                                     |
+| POST `/channels/:id/test`        | admin                       | `{ ok, status?, error? }`                                                                                                                               |
+| GET `/channels/:id/deliveries`   | admin                       | recent deliveries                                                                                                                                       |
+| GET `/summary`                   | viewer                      | dashboard counters                                                                                                                                      |
+| GET `/gate`                      | viewer (token)              | `?tags=a,b&failOn=down,unknown,breaking,warning` (default `down,breaking`) → always 200 with `{ pass, evaluated, failures[] }`                          |
+| GET `/audit`                     | admin                       | `?limit&before`                                                                                                                                         |
+| GET `/healthz`, `/readyz`        | public (outside `/api`)     | liveness; DB readiness (503 if DB unreachable)                                                                                                          |
 
 ## Monitor body
 
@@ -107,14 +107,15 @@ Common fields (all optional except `name`, `kind`, `config`):
   "failureThreshold": 2, "baselineSamples": 3, "driftEnabled": true,
   "ignorePaths": ["$.data[].metadata"], "tags": ["payments"],
   "config": { … },
-  "secrets": { "headers": { "Authorization": "Bearer sk_live_…" }, "apiKey": "…" }
+  "secrets": { "headers": { "Authorization": "Bearer sk_live_…" }, "query": { "api_key": "…" }, "apiKey": "…" }
 }
 ```
 
 Limits: interval 30–86 400 s; timeout 500–60 000 ms and ≤ interval; threshold 1–20; samples 1–20;
 ≤ 50 ignore paths; ≤ 20 tags matching `[A-Za-z0-9_.-]+` (stored lower-case).
 
-**Secrets are write-only.** Responses expose `secretKeys: { headers: [names], apiKey: bool }`.
+**Secrets are write-only.** Responses expose `secretKeys: { headers: [names], query: [names], apiKey: bool }`.
+`secrets.query` parameters are appended to the request URL at send time (never stored in `config.url`).
 On PATCH, `null` removes a secret and omitting keeps it.
 
 ### `config` for `kind: "http"`

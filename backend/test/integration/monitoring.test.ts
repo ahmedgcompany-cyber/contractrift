@@ -76,7 +76,7 @@ describe('monitor CRUD and validation', () => {
 
   it('treats secrets as write-only and encrypts them at rest', async () => {
     const m = await createHttpMonitor({ secrets: { headers: { Authorization: 'Bearer top-secret-value' } } });
-    expect(m.secretKeys).toEqual({ headers: ['Authorization'], apiKey: false });
+    expect(m.secretKeys).toEqual({ headers: ['Authorization'], query: [], apiKey: false });
     const all = JSON.stringify([(await admin.get(`/monitors/${m.id}`)).body, (await admin.get('/monitors')).body]);
     expect(all).not.toContain('top-secret-value');
     const [row] = await h.ctx.db.select().from(monitors).where(eq(monitors.id, m.id));

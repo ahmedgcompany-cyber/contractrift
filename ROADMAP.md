@@ -3,18 +3,16 @@
 Priorities reflect research gaps ([research/](research/)) and known limitations
 ([PROJECT_STATUS.md](PROJECT_STATUS.md)). Nothing below is implemented.
 
-## Next (0.2) — harden what exists
+## Next (0.3) — harden what exists
+
+- Run the live suite with real OpenAI and Anthropic keys (`LIVE_OPENAI_API_KEY`, `LIVE_ANTHROPIC_API_KEY`).
 
 - Run CI on GitHub: confirm PostgreSQL 17 suite, Docker build, E2E on Linux.
-- Real-provider verification with user-supplied keys (OpenAI, Anthropic, a public MCP server).
-- `ENCRYPTION_KEY` rotation (dual-key decrypt + re-encrypt job).
-- Secret **query parameters** for APIs that authenticate via the URL.
-- Pagination for `GET /monitors` (payload is ~250 KB at 200 monitors).
 - Retention for drift events / resolved incidents / audit log (configurable).
 - Shared rate-limit store for multi-instance deployments.
 - Auto-close stale open drift events when a later event is accepted for the same monitor.
 
-## Soon (0.3) — product depth
+## Soon (0.4) — product depth
 
 - Email (SMTP) notifications; per-monitor channel routing; maintenance windows / snooze.
 - OpenAPI-spec-derived expectations ("the upstream no longer matches its own published spec").

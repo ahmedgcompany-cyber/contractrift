@@ -179,6 +179,34 @@ test('viewer must change the initial password and cannot edit', async ({ page })
   await expect(page.getByRole('link', { name: 'Users' })).toHaveCount(0);
 });
 
+test('secret URL parameter is write-only; monitor list paginates', async ({ page }) => {
+  await login(page);
+  await page.goto('/monitors/new');
+  await page.getByLabel('Name').fill('Query-key API');
+  await page.getByLabel('URL', { exact: true }).fill(`${UP}/json`);
+  await page.getByRole('button', { name: '+ Add secret URL parameter' }).click();
+  await page.getByLabel('Parameter name').fill('api_key');
+  await page.getByLabel('Secret value').fill('e2e-query-secret');
+  await page.getByRole('button', { name: 'Create monitor' }).click();
+  await expect(page.getByText('URL parameter api_key')).toBeVisible();
+  await expect(page.getByText('e2e-query-secret')).toHaveCount(0);
+
+  // 26+ monitors → more than one page of 25
+  for (let i = 0; i < 26; i++) {
+    const r = await page.request.post('/api/v1/monitors', {
+      headers: { 'x-tripline-csrf': '1' },
+      data: { name: `bulk-${String(i).padStart(2, '0')}`, kind: 'http', enabled: false, config: { url: `https://example.com/${i}` } },
+    });
+    expect(r.status()).toBe(201);
+  }
+  await page.goto('/monitors');
+  const pager = page.getByRole('navigation', { name: 'Pagination' });
+  await expect(pager).toContainText(/1–25 of \d+/);
+  await pager.getByRole('button', { name: 'Next' }).click();
+  await expect(pager).toContainText(/26–\d+ of \d+/);
+  await expect(page).toHaveURL(/page=2/);
+});
+
 test('@mobile navigation works without horizontal scrolling', async ({ page }) => {
   await login(page);
   await page.goto('/monitors');
