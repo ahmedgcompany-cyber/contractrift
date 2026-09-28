@@ -39,7 +39,7 @@ builders whose stack is mostly external dependencies.
 
 **Frequency.** Reported (vendor-sourced, unverified) figure: 41% of public APIs show schema drift
 within 30 days (S1). Provider incident counts: 114 Anthropic incidents in 90 days reported by
-IsDown (S4, secondary). Independent evidence of *frequency* is weak; evidence of *recurrence*
+IsDown (S4, secondary). Independent evidence of _frequency_ is weak; evidence of _recurrence_
 (many named incidents across major providers) is strong.
 
 **Impact.** Time: debugging starts from customer complaints rather than alerts (S5, S12).
@@ -47,27 +47,32 @@ Reliability: agents degrade quietly rather than crash (S12, S13). Security: cred
 and MCP tool-definition changes are a supply-chain concern (S39, DriftCop in S7).
 
 ### B. Inbound webhooks fail silently
+
 Endpoints go down, senders retry then give up; the receiver learns days later. GitHub doesn't
 auto-redeliver (S24–S26). **Existing solutions are strong and cheap**: Hookdeck (free 100K
 events/mo, paid from ~$39/mo — S27, S40), Svix, Convoy, Hook0. A new product requires public
 ingress infrastructure to be useful, which we cannot test end-to-end here.
 
 ### C. Flaky tests waste CI time
+
 Reported: 58% of developers hit flaky tests monthly; ~1 in 3 reruns caused by flakes (S28,
 S29 — vendor-sourced). Real pain, but **mature, well-funded competitors** (Trunk, BuildPulse,
 Datadog CI Visibility, Buildkite Test Engine — S30), and a useful product needs a GitHub App
 plus real CI history we don't have.
 
 ### D. LLM model deprecations surprise teams
+
 40 model IDs carry 2026 retirement dates (S33). Solutions already exist (llm-eol OSS tracker,
 LLM Status CLI, Zombify, TokenGauge; LiteLLM adding it — S31–S33). The core value is a
 **manually curated dataset**, not software; hard to differentiate.
 
 ### E. Cron / scheduled jobs fail silently
+
 Well-understood; heartbeat ("dead man's switch") monitoring is a solved category (Cronitor,
 Healthchecks.io OSS, Better Stack) (S34, S35). Low differentiation.
 
 ### F. Runaway LLM / agent spend
+
 Anecdotes of multi-thousand-dollar surprise bills (S36). Solved at the gateway layer by LiteLLM
 budgets, Portkey, Helicone, and provider-side spend limits. Differentiation mostly via proxy,
 which is a large, security-sensitive surface.
@@ -78,7 +83,7 @@ which is a large, security-sensitive surface.
    monitors are **SaaS-only** (FlareCanary, API Drift Alert, APIShift, DiffMon, Rumbliq,
    PromptCanary), and the open-source tools are **CI-only snapshot tools** (oasdiff, Bellwether,
    Specmatic) — S7, S21.
-2. To monitor *authenticated* endpoints (which is most real integrations: OpenAI, Stripe,
+2. To monitor _authenticated_ endpoints (which is most real integrations: OpenAI, Stripe,
    internal partner APIs, MCP servers), a SaaS monitor must be given **your production API
    keys**. That is a concrete, defensible reason to want a self-hosted tool.
 3. Self-hosted uptime tools (Uptime Kuma, Gatus) have large user bases and **repeated feature
@@ -92,17 +97,17 @@ which is a large, security-sensitive surface.
 Scale 1 (weak) – 5 (strong). "Feasibility here" accounts for this environment (no Docker, no
 PostgreSQL server, no third-party credentials).
 
-| Criterion | A. Dependency drift sentinel | B. Webhooks | C. Flaky tests | D. Model deprecations | E. Cron | F. LLM spend |
-|---|---|---|---|---|---|---|
-| Evidence of demand | 4 — many named incidents across major providers; issue-tracker requests; many new entrants (market signal) | 4 — frequent blog/forum complaints | 4 — multiple surveys (vendor) | 3 — trackers exist, LiteLLM feature request | 3 — long-standing, mostly solved | 3 — anecdotal |
-| Frequency of pain | 4 | 4 | 5 | 2 — periodic | 3 | 2 |
-| Technical feasibility (MVP) | 5 — HTTP + JSON + scheduler; testable locally against real local servers | 3 — needs public ingress | 2 — needs GitHub App + real CI data | 4 | 5 | 3 — proxy is security-heavy |
-| Differentiation opportunity | 4 — self-hosted + LLM + MCP + CI gate gap | 2 — strong cheap incumbents | 2 — well-funded incumbents | 1 — data, not software | 1 | 2 |
-| Implementation complexity (5 = manageable) | 4 | 3 | 2 | 4 | 5 | 2 |
-| Commercial opportunity | 4 — paying SaaS competitors prove willingness to pay ($12–$749/mo, S7) | 4 | 4 | 2 | 3 | 3 |
-| Useful MVP achievable here | 5 | 2 | 2 | 3 | 5 | 3 |
-| Expansion potential | 5 — GraphQL, gRPC, OpenAPI diff, status pages, SaaS tier | 3 | 3 | 2 | 2 | 3 |
-| **Total (/40)** | **35** | 25 | 24 | 21 | 27 | 21 |
+| Criterion                                  | A. Dependency drift sentinel                                                                               | B. Webhooks                        | C. Flaky tests                      | D. Model deprecations                       | E. Cron                          | F. LLM spend                |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ---------------------------------- | ----------------------------------- | ------------------------------------------- | -------------------------------- | --------------------------- |
+| Evidence of demand                         | 4 — many named incidents across major providers; issue-tracker requests; many new entrants (market signal) | 4 — frequent blog/forum complaints | 4 — multiple surveys (vendor)       | 3 — trackers exist, LiteLLM feature request | 3 — long-standing, mostly solved | 3 — anecdotal               |
+| Frequency of pain                          | 4                                                                                                          | 4                                  | 5                                   | 2 — periodic                                | 3                                | 2                           |
+| Technical feasibility (MVP)                | 5 — HTTP + JSON + scheduler; testable locally against real local servers                                   | 3 — needs public ingress           | 2 — needs GitHub App + real CI data | 4                                           | 5                                | 3 — proxy is security-heavy |
+| Differentiation opportunity                | 4 — self-hosted + LLM + MCP + CI gate gap                                                                  | 2 — strong cheap incumbents        | 2 — well-funded incumbents          | 1 — data, not software                      | 1                                | 2                           |
+| Implementation complexity (5 = manageable) | 4                                                                                                          | 3                                  | 2                                   | 4                                           | 5                                | 2                           |
+| Commercial opportunity                     | 4 — paying SaaS competitors prove willingness to pay ($12–$749/mo, S7)                                     | 4                                  | 4                                   | 2                                           | 3                                | 3                           |
+| Useful MVP achievable here                 | 5                                                                                                          | 2                                  | 2                                   | 3                                           | 5                                | 3                           |
+| Expansion potential                        | 5 — GraphQL, gRPC, OpenAPI diff, status pages, SaaS tier                                                   | 3                                  | 3                                   | 2                                           | 2                                | 3                           |
+| **Total (/40)**                            | **35**                                                                                                     | 25                                 | 24                                  | 21                                          | 27                               | 21                          |
 
 ## 5. Decision
 

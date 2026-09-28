@@ -101,14 +101,14 @@ similarity assertions, Prometheus metrics endpoint, SSO/OIDC, drift history char
 
 ## 11. Risks
 
-| Risk | Mitigation |
-|---|---|
-| Drift noise from dynamic keys (maps keyed by IDs) | `ignorePaths`; additions are only `info`; removals only flagged for paths present in every baseline sample |
-| Probe costs money (LLM tokens) | Default `max_tokens` 32; minimum interval 30 s; documented cost note |
-| Provider formats change (the very thing monitored) breaks the LLM probe | Text extraction is lenient; failures surface as probe errors, which is itself the signal |
-| SSRF: the product intentionally requests user-configured URLs | Editor role required; private ranges blocked by default; DNS results checked at connect time |
-| Single-node scheduler | Claims use `FOR UPDATE SKIP LOCKED`, so multiple instances against one PostgreSQL won't double-run a monitor |
-| Crowded market | Positioning on self-hosting + LLM/MCP breadth; unvalidated commercially |
+| Risk                                                                    | Mitigation                                                                                                   |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Drift noise from dynamic keys (maps keyed by IDs)                       | `ignorePaths`; additions are only `info`; removals only flagged for paths present in every baseline sample   |
+| Probe costs money (LLM tokens)                                          | Default `max_tokens` 32; minimum interval 30 s; documented cost note                                         |
+| Provider formats change (the very thing monitored) breaks the LLM probe | Text extraction is lenient; failures surface as probe errors, which is itself the signal                     |
+| SSRF: the product intentionally requests user-configured URLs           | Editor role required; private ranges blocked by default; DNS results checked at connect time                 |
+| Single-node scheduler                                                   | Claims use `FOR UPDATE SKIP LOCKED`, so multiple instances against one PostgreSQL won't double-run a monitor |
+| Crowded market                                                          | Positioning on self-hosting + LLM/MCP breadth; unvalidated commercially                                      |
 
 ## 12. Assumptions (unvalidated)
 

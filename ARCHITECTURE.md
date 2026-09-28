@@ -24,39 +24,39 @@ claiming with `SKIP LOCKED`, an outbox table for notifications).
 
 ## 2. Technology decisions
 
-| Area | Choice | Why | Alternatives considered |
-|---|---|---|---|
-| Language | TypeScript (strict) end-to-end | One language for UI, API, probes; shared mental model | Go (great for probes, weaker UI story in one repo); Python/FastAPI |
-| Runtime | Node.js 24 LTS | Available; built-in `fetch`/undici, `node:crypto`, `net.BlockList` | Bun/Deno (smaller ecosystem for ops) |
-| HTTP framework | Fastify 5 | Mature, fast, first-class JSON-Schema validation, pino logging, plugin ecosystem (helmet, rate-limit, cookie, static, swagger) | Express (no built-in validation), Hono, NestJS (heavier) |
-| Validation / API schema | TypeBox via `@fastify/type-provider-typebox` | Same schema validates requests, types handlers, and generates OpenAPI → docs can't drift from code | Zod + type provider |
-| Database | PostgreSQL | Reliable, `jsonb`, `SKIP LOCKED`, ubiquitous hosting | SQLite (simpler, but weaker concurrency / multi-instance story) |
-| Embedded DB | PGlite (Postgres→WASM) | Zero-install dev/test with the **same SQL and migrations** as production | Testcontainers (no Docker here) |
-| ORM / migrations | Drizzle ORM + drizzle-kit | Typed SQL-first queries, plain SQL migration files, drivers for both `pg` and PGlite | Prisma (heavier engine, PGlite support less direct) |
-| Password hashing | argon2id via `@node-rs/argon2` | OWASP-recommended; prebuilt binaries | bcrypt |
-| Sessions | Server-side sessions; opaque 256-bit random token in httpOnly cookie; SHA-256 of token stored | Revocable, simple, no JWT pitfalls | JWT; Better Auth (evaluated: feature-rich, but email flows/plugins not needed for admin-provisioned self-hosted accounts; adds a large surface) |
-| Secrets at rest | AES-256-GCM (`node:crypto`), key from `ENCRYPTION_KEY` | Standard AEAD primitive from the standard library; no custom crypto | libsodium |
-| JSON Schema assertions | Ajv 8 (+ ajv-formats) | De-facto standard | — |
-| Outbound HTTP | undici `request` with a per-request `Agent` whose `connect.lookup` enforces SSRF policy | Checks every connection, including redirects and DNS rebinding | Plain `fetch` (can't pin DNS checks) |
-| Frontend | React 19 + Vite + React Router + TanStack Query, hand-written CSS | Mainstream, maintainable, small; no UI kit lock-in | Next.js (SSR unnecessary for an internal tool) |
-| Tests | Vitest (unit + integration), Playwright (E2E) | Fast, TS-native; real browser E2E | Jest |
-| Lint/format | Biome | Single fast tool; no dependency on the TypeScript JS API (TS 7 is the native compiler) | ESLint + Prettier |
+| Area                    | Choice                                                                                        | Why                                                                                                                            | Alternatives considered                                                                                                                         |
+| ----------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Language                | TypeScript (strict) end-to-end                                                                | One language for UI, API, probes; shared mental model                                                                          | Go (great for probes, weaker UI story in one repo); Python/FastAPI                                                                              |
+| Runtime                 | Node.js 24 LTS                                                                                | Available; built-in `fetch`/undici, `node:crypto`, `net.BlockList`                                                             | Bun/Deno (smaller ecosystem for ops)                                                                                                            |
+| HTTP framework          | Fastify 5                                                                                     | Mature, fast, first-class JSON-Schema validation, pino logging, plugin ecosystem (helmet, rate-limit, cookie, static, swagger) | Express (no built-in validation), Hono, NestJS (heavier)                                                                                        |
+| Validation / API schema | TypeBox via `@fastify/type-provider-typebox`                                                  | Same schema validates requests, types handlers, and generates OpenAPI → docs can't drift from code                             | Zod + type provider                                                                                                                             |
+| Database                | PostgreSQL                                                                                    | Reliable, `jsonb`, `SKIP LOCKED`, ubiquitous hosting                                                                           | SQLite (simpler, but weaker concurrency / multi-instance story)                                                                                 |
+| Embedded DB             | PGlite (Postgres→WASM)                                                                        | Zero-install dev/test with the **same SQL and migrations** as production                                                       | Testcontainers (no Docker here)                                                                                                                 |
+| ORM / migrations        | Drizzle ORM + drizzle-kit                                                                     | Typed SQL-first queries, plain SQL migration files, drivers for both `pg` and PGlite                                           | Prisma (heavier engine, PGlite support less direct)                                                                                             |
+| Password hashing        | argon2id via `@node-rs/argon2`                                                                | OWASP-recommended; prebuilt binaries                                                                                           | bcrypt                                                                                                                                          |
+| Sessions                | Server-side sessions; opaque 256-bit random token in httpOnly cookie; SHA-256 of token stored | Revocable, simple, no JWT pitfalls                                                                                             | JWT; Better Auth (evaluated: feature-rich, but email flows/plugins not needed for admin-provisioned self-hosted accounts; adds a large surface) |
+| Secrets at rest         | AES-256-GCM (`node:crypto`), key from `ENCRYPTION_KEY`                                        | Standard AEAD primitive from the standard library; no custom crypto                                                            | libsodium                                                                                                                                       |
+| JSON Schema assertions  | Ajv 8 (+ ajv-formats)                                                                         | De-facto standard                                                                                                              | —                                                                                                                                               |
+| Outbound HTTP           | undici `request` with a per-request `Agent` whose `connect.lookup` enforces SSRF policy       | Checks every connection, including redirects and DNS rebinding                                                                 | Plain `fetch` (can't pin DNS checks)                                                                                                            |
+| Frontend                | React 19 + Vite + React Router + TanStack Query, hand-written CSS                             | Mainstream, maintainable, small; no UI kit lock-in                                                                             | Next.js (SSR unnecessary for an internal tool)                                                                                                  |
+| Tests                   | Vitest (unit + integration), Playwright (E2E)                                                 | Fast, TS-native; real browser E2E                                                                                              | Jest                                                                                                                                            |
+| Lint/format             | Biome                                                                                         | Single fast tool; no dependency on the TypeScript JS API (TS 7 is the native compiler)                                         | ESLint + Prettier                                                                                                                               |
 
 ## 3. Backend structure (`backend/src`)
 
-| Directory | Responsibility |
-|---|---|
-| `config.ts` | Parse + validate environment variables once; typed config object |
-| `app.ts` | `buildApp(deps)` — registers plugins and routes; used by server, tests and OpenAPI export |
-| `index.ts` | Process entry: config → DB → migrations → app → jobs → graceful shutdown |
-| `db/` | Drizzle schema, client factory (pg or PGlite), migration runner |
-| `lib/` | Cross-cutting utilities: errors, crypto, SSRF-guarded HTTP client, JSONPath subset, logger redaction |
-| `drift/` | Pure drift engine: shape inference, baseline merge, diff + severity, acceptance |
-| `probes/` | `http`, `llm`, `mcp` probes → normalized `ProbeOutcome`; shared assertions |
+| Directory   | Responsibility                                                                                                    |
+| ----------- | ----------------------------------------------------------------------------------------------------------------- |
+| `config.ts` | Parse + validate environment variables once; typed config object                                                  |
+| `app.ts`    | `buildApp(deps)` — registers plugins and routes; used by server, tests and OpenAPI export                         |
+| `index.ts`  | Process entry: config → DB → migrations → app → jobs → graceful shutdown                                          |
+| `db/`       | Drizzle schema, client factory (pg or PGlite), migration runner                                                   |
+| `lib/`      | Cross-cutting utilities: errors, crypto, SSRF-guarded HTTP client, JSONPath subset, logger redaction              |
+| `drift/`    | Pure drift engine: shape inference, baseline merge, diff + severity, acceptance                                   |
+| `probes/`   | `http`, `llm`, `mcp` probes → normalized `ProbeOutcome`; shared assertions                                        |
 | `services/` | Business logic (monitors, runner, incidents, drift, notifications, auth, users, tokens, audit) — no Fastify types |
-| `routes/` | HTTP layer only: schemas, auth requirements, call services, map to responses |
-| `plugins/` | Fastify plugins: auth (session/token resolution, role guards, CSRF), error handler |
-| `jobs/` | Scheduler, notifier, retention timers |
+| `routes/`   | HTTP layer only: schemas, auth requirements, call services, map to responses                                      |
+| `plugins/`  | Fastify plugins: auth (session/token resolution, role guards, CSRF), error handler                                |
+| `jobs/`     | Scheduler, notifier, retention timers                                                                             |
 
 Rule: **routes → services → db**. Probes and the drift engine are pure/IO-isolated and unit-tested
 without a database.
@@ -155,9 +155,9 @@ TanStack Query caches on the client with polling (15 s) on live views.
 
 ## 13. Testing strategy
 
-| Layer | Tool | Scope |
-|---|---|---|
-| Unit | Vitest | drift engine, JSONPath, assertions, crypto, SSRF classification, MCP SSE parsing, config |
+| Layer       | Tool                                                                                                                                              | Scope                                                                                                                        |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Unit        | Vitest                                                                                                                                            | drift engine, JSONPath, assertions, crypto, SSRF classification, MCP SSE parsing, config                                     |
 | Integration | Vitest + Fastify `inject` + PGlite in-memory + **real local HTTP servers** (generic JSON API, OpenAI-format, Anthropic-format, MCP modern+legacy) | every route, auth/roles/CSRF, runner end-to-end, incidents, drift lifecycle, notifications to a local webhook receiver, gate |
-| E2E | Playwright (Chromium) against the built app | setup, login, create monitor, run, drift accept, channels, tokens |
-| Contract | test asserts committed `api/openapi.yaml` equals the generated spec | docs ↔ code sync |
+| E2E         | Playwright (Chromium) against the built app                                                                                                       | setup, login, create monitor, run, drift accept, channels, tokens                                                            |
+| Contract    | test asserts committed `api/openapi.yaml` equals the generated spec                                                                               | docs ↔ code sync                                                                                                             |
