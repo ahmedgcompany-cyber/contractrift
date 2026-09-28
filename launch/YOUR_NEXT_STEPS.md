@@ -49,7 +49,9 @@ GitHub has no API for this.
 
 ---
 
-## Step 4 — Make the Docker image public (if needed) · 1 minute
+## Step 4 — Docker image visibility · nothing to do
+
+Verified 2026-09-28: the image is already publicly pullable. Only if that ever changes:
 
 If `docker pull ghcr.io/ahmedgcompany-cyber/contractrift` says "unauthorized":
 
