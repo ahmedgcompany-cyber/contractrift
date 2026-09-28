@@ -1,7 +1,7 @@
 # Tripline + PostgreSQL. Usage:
 #   cp .env.example .env   # set ENCRYPTION_KEY (npm run gen-key) and POSTGRES_PASSWORD
 #   docker compose up -d --build
-# NOTE: not executed in the original development environment (no Docker there).
+# Exercised in CI on every push (see the docker job in .github/workflows/ci.yml).
 services:
   db:
     image: postgres:17

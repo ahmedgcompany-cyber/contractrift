@@ -9,8 +9,9 @@ alias, or an MCP server dropped a tool or added a required parameter.
 Your API keys stay on your infrastructure: secrets are encrypted at rest and never returned by
 the API.
 
-> Status: **v0.1.0 — functional MVP, not yet production-proven.** See
-> [PROJECT_STATUS.md](PROJECT_STATUS.md) for exactly what is verified and what is not.
+> Status: **v0.2.0 — functional, CI-verified MVP** (tests on PGlite and PostgreSQL 17, docker-compose stack
+> exercised in CI, probes live-tested against GitHub, two real MCP servers and a real OpenAI-compatible LLM
+> server). Not yet load-tested or deployed anywhere. Details: [PROJECT_STATUS.md](PROJECT_STATUS.md).
 
 ## Why
 
@@ -32,6 +33,7 @@ drift monitors that exist need your production credentials. Research and evidenc
   expected tools and a test tool call.
 - **Incidents** after N consecutive failures; resolved on the next success.
 - **Notifications:** HMAC-signed webhooks and Slack, with retries and a delivery log.
+- **Key rotation** (`ENCRYPTION_KEY_PREVIOUS`), **secret URL parameters**, paginated monitor list.
 - **CI deploy gate:** `GET /api/v1/gate` + `scripts/tripline-gate.mjs` (exit code 0/1/2).
 - **Users & roles** (viewer / editor / admin), read-only API tokens, audit log.
 - **Security:** argon2id, server-side sessions, CSRF header, lockout, rate limits, SSRF guard,

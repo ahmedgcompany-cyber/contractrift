@@ -68,5 +68,5 @@ protection). If you intentionally monitor services on your private network, set
 
 ## Docker
 
-See [DEPLOYMENT.md](DEPLOYMENT.md). The Docker files were **not built in the original
-development environment** (no Docker available there); CI builds the image.
+See [DEPLOYMENT.md](DEPLOYMENT.md). The docker-compose stack (app + PostgreSQL 17) is built, started
+and exercised in CI on every push.

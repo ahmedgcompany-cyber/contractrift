@@ -20,6 +20,7 @@ All notable changes to this project are documented here. Format: [Keep a Changel
 
 ### Verified
 
+- CI on GitHub Actions: lint/typecheck/140 tests (PGlite), the same 140 tests against PostgreSQL 17, 11 Playwright E2E on Linux, `npm audit` (0 prod vulnerabilities), and the docker-compose stack (build, start, readiness on PostgreSQL, setup, a real outbound check, restart with data persisted, container health check).
 - Live: GitHub API, DeepWiki MCP, Hugging Face MCP (tool calls on both protocol generations), LM Studio (OpenAI-compatible) — all passed. OpenAI and Anthropic cloud APIs not tested (no keys).
 
 ## 0.1.0 — 2026-09-28
@@ -52,6 +53,6 @@ First functional MVP.
 
 ### Known Issues
 
-- Docker image, docker-compose and PostgreSQL-server mode not executed in the development environment; CI not yet run.
+- Docker image, docker-compose and PostgreSQL-server mode not executed in the development environment (verified later in CI, see 0.2.0).
 - No real third-party provider was called (no credentials); probes verified against local protocol-faithful substitutes.
 - See PROJECT_STATUS.md for the complete list.

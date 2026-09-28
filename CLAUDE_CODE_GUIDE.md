@@ -58,7 +58,7 @@ Restart the server after rebuilding the frontend (static files are indexed at st
 
 ## Deployment
 
-DEPLOYMENT.md. Docker files are untested locally; CI builds the image.
+DEPLOYMENT.md. CI builds and runs the docker-compose stack on every push (no Docker needed locally).
 
 ## Debugging
 

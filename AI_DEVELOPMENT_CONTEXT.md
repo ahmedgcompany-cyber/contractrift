@@ -93,7 +93,7 @@ TEST_DATABASE_URL=postgres://… npm test   # against real PostgreSQL (DROPS sch
 
 ## Deployment
 
-Docker/compose files and CI exist but were never executed in the authoring environment. See DEPLOYMENT.md.
+Docker Compose (app + PostgreSQL 17) is built, started and exercised in CI on every push; see DEPLOYMENT.md. No cloud deployment exists.
 
 ## Known issues
 

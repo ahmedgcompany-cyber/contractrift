@@ -1,11 +1,10 @@
 # Deployment
 
-> **Verification status.** Verified in the original environment: running the built app with
-> `npm start` on Node 24 with embedded PGlite (Windows 11). **Not verified there:** the Docker
-> image, docker-compose, and running against a PostgreSQL server (no Docker or PostgreSQL was
-> available). CI (`.github/workflows/ci.yml`) is configured to build the image and run the test
-> suite against PostgreSQL 17, but has **not yet run** because the repository has not been
-> pushed. No cloud deployment exists.
+> **Verification status (2026-09-28).** Verified locally: `npm start` on Node 24 with embedded PGlite
+> (Windows 11). Verified in CI (GitHub Actions, Ubuntu): the full test suite against **PostgreSQL 17**, and
+> the **docker-compose stack** (image build, start, readiness on PostgreSQL, first-run setup, a real
+> outbound check from the container, restart with data persisted, container health check).
+> Not done: any cloud deployment; load testing.
 
 ## Topology
 

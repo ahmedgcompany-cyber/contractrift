@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 # Tripline — single image serving API, UI and background jobs.
-# NOTE: written and reviewed but NOT built in the original development environment (no Docker there).
+# Built, started and exercised in CI (docker-compose job in .github/workflows/ci.yml).
 
 FROM node:24-bookworm-slim AS build
 WORKDIR /app

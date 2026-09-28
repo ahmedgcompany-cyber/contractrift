@@ -6,7 +6,7 @@ startup and by `npm run db:migrate`; applied migrations are tracked in `drizzle.
 
 Two drivers, same SQL:
 
-- **PostgreSQL** (`DATABASE_URL`) — production. Tested in CI against PostgreSQL 17 (not run locally in the original environment).
+- **PostgreSQL** (`DATABASE_URL`) — production. Full integration suite runs in CI against PostgreSQL 17 (140/140 passing).
 - **PGlite** (embedded PostgreSQL 18 compiled to WASM) — default when `DATABASE_URL` is empty;
   used by all local tests. Single connection; suited to single-node installs.
 
