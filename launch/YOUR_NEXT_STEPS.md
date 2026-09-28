@@ -45,7 +45,7 @@ GitHub has no API for this.
 
 1. Open https://github.com/ahmedgcompany-cyber/contractrift/settings
 2. **Social preview** → **Edit** → **Upload an image** → choose
-   `C:\Users\AHMED\projects\tripline\assets\screenshots\dashboard-light.png`.
+   `C:\Users\AHMED\projects\tripline\assets\social-preview.png`.
 
 ---
 

@@ -55,5 +55,5 @@ Cold-emailing "Google" does not work. What does:
 
 ## Social preview image
 
-GitHub → Settings → General → Social preview → upload `assets/screenshots/dashboard-light.png`
+GitHub → Settings → General → Social preview → upload `assets/social-preview.png` (1280×640)
 (GitHub has no API for this; it's a manual 30-second step).

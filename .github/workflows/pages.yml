@@ -28,6 +28,7 @@ jobs:
           cp -r site/. _site/
           cp -r assets/screenshots _site/screenshots
           cp assets/logo.svg _site/logo.svg
+          cp assets/social-preview.png _site/social-preview.png
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
