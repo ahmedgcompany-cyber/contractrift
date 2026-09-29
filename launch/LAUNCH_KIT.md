@@ -9,6 +9,8 @@ are true for v0.3.0; do not add numbers (users, customers, benchmarks) that don'
 - Website: https://ahmedgcompany-cyber.github.io/contractrift/
 - Live demo: https://136-119-147-140.sslip.io — read-only demo login is shown on the sign-in page
 
+**Day-by-day schedule with links and the media to attach:** [LAUNCH_SCHEDULE.md](LAUNCH_SCHEDULE.md)
+
 ## One-liners
 
 - **Tagline:** Know when the APIs, LLMs and MCP servers you depend on go down — or silently change.

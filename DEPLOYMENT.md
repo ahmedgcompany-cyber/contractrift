@@ -73,6 +73,7 @@ gcloud compute instances remove-metadata contractrift --zone us-central1-a --key
 Upgrade: bump `CONTRACTRIFT_VERSION` in the script, run `gcloud compute instances add-metadata ... startup-script=...`, then
 `gcloud compute instances reset contractrift` (keeps the IP; a stop/start could change it and therefore the host name).
 Logs: `gcloud compute ssh contractrift --tunnel-through-iap --command "sudo docker logs contractrift-app-1"`.
+SSH access uses **OS Login** (project metadata `enable-oslogin=TRUE`, no project-wide SSH keys) through IAP only.
 Limits: 1 GB RAM (the app uses about 300-400 MB), embedded database, single instance.
 
 ## Render (one click)

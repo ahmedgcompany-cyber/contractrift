@@ -20,7 +20,8 @@ mkdirSync(OUT_VID, { recursive: true });
 // Pages are built with setContent (about:blank), where file:// images are blocked, so inline them.
 const cache = new Map();
 const img = (name) => {
-  if (!cache.has(name)) cache.set(name, `data:image/png;base64,${readFileSync(path.join(ROOT, 'assets', 'screenshots', `${name}.png`)).toString('base64')}`);
+  if (!cache.has(name))
+    cache.set(name, `data:image/png;base64,${readFileSync(path.join(ROOT, 'assets', 'screenshots', `${name}.png`)).toString('base64')}`);
   return cache.get(name);
 };
 const LOGO = `<svg viewBox="0 0 32 32" class="logo"><rect width="32" height="32" rx="6" fill="#1c1b18"/><path d="M4 18h7l3-9 4 15 3-9h7" fill="none" stroke="#e05a1f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -49,7 +50,18 @@ h1{margin:0;letter-spacing:-.035em;line-height:1.02}
 `;
 
 /** Landscape/square card: headline left, screenshot right (or below for tall formats). */
-function card({ w, h, title, sub, shot = 'dashboard-light', eyebrow = 'Open source · Self-hosted', dark = false, tags = ['REST', 'LLM', 'MCP'], footer = REPO, scale = 1 }) {
+function card({
+  w,
+  h,
+  title,
+  sub,
+  shot = 'dashboard-light',
+  eyebrow = 'Open source · Self-hosted',
+  dark = false,
+  tags = ['REST', 'LLM', 'MCP'],
+  footer = REPO,
+  scale = 1,
+}) {
   const tall = h > w * 0.9;
   const s = scale;
   return `<!doctype html><html><head><meta charset="utf-8"><style>${BASE_CSS}
@@ -82,25 +94,117 @@ function gallery({ w, h, caption, shot, dark = false }) {
 
 const IMAGES = [
   // X / Twitter: 16:9
-  ['x-twitter-1600x900', card({ w: 1600, h: 900, scale: 1.2, title: 'Your API still returns <span class="hl">200 OK</span>. The field you need is gone.', sub: 'ContractRift watches the contract, not just the status code — for REST APIs, LLMs and MCP servers.' })],
-  ['x-twitter-drift-1600x900', card({ w: 1600, h: 900, scale: 1.2, shot: 'drift-inbox', eyebrow: 'Drift inbox', title: 'Review upstream changes like pull requests.', sub: 'Breaking, warning or info. Accept to update the baseline, or dismiss.' })],
+  [
+    'x-twitter-1600x900',
+    card({
+      w: 1600,
+      h: 900,
+      scale: 1.2,
+      title: 'Your API still returns <span class="hl">200 OK</span>. The field you need is gone.',
+      sub: 'ContractRift watches the contract, not just the status code — for REST APIs, LLMs and MCP servers.',
+    }),
+  ],
+  [
+    'x-twitter-drift-1600x900',
+    card({
+      w: 1600,
+      h: 900,
+      scale: 1.2,
+      shot: 'drift-inbox',
+      eyebrow: 'Drift inbox',
+      title: 'Review upstream changes like pull requests.',
+      sub: 'Breaking, warning or info. Accept to update the baseline, or dismiss.',
+    }),
+  ],
   // LinkedIn: link/landscape and square feed image
-  ['linkedin-1200x627', card({ w: 1200, h: 627, scale: 0.85, title: 'Know when your upstream APIs <span class="hl">silently change</span>.', sub: 'Open-source, self-hosted monitoring for REST APIs, LLMs and MCP servers.' })],
-  ['linkedin-square-1200x1200', card({ w: 1200, h: 1200, scale: 1.05, title: 'Uptime says it is up.<br>ContractRift says it <span class="hl">changed</span>.', sub: 'Detect removed fields, new types, model swaps and MCP tool changes — before your users do.' })],
+  [
+    'linkedin-1200x627',
+    card({
+      w: 1200,
+      h: 627,
+      scale: 0.85,
+      title: 'Know when your upstream APIs <span class="hl">silently change</span>.',
+      sub: 'Open-source, self-hosted monitoring for REST APIs, LLMs and MCP servers.',
+    }),
+  ],
+  [
+    'linkedin-square-1200x1200',
+    card({
+      w: 1200,
+      h: 1200,
+      scale: 1.05,
+      title: 'Uptime says it is up.<br>ContractRift says it <span class="hl">changed</span>.',
+      sub: 'Detect removed fields, new types, model swaps and MCP tool changes — before your users do.',
+    }),
+  ],
   // Reddit image post (4:3)
-  ['reddit-1200x900', card({ w: 1200, h: 900, scale: 0.95, shot: 'drift-inbox', title: 'Self-hosted drift monitoring for the APIs you depend on.', sub: 'Your API keys stay on your own server. AGPL-3.0.' })],
+  [
+    'reddit-1200x900',
+    card({
+      w: 1200,
+      h: 900,
+      scale: 0.95,
+      shot: 'drift-inbox',
+      title: 'Self-hosted drift monitoring for the APIs you depend on.',
+      sub: 'Your API keys stay on your own server. AGPL-3.0.',
+    }),
+  ],
   // dev.to cover (1000x420)
-  ['devto-cover-1000x420', card({ w: 1000, h: 420, scale: 0.62, title: 'Your tests mock the API. <span class="hl">The API changed anyway.</span>', sub: 'Watching the contract with ContractRift.' })],
+  [
+    'devto-cover-1000x420',
+    card({
+      w: 1000,
+      h: 420,
+      scale: 0.62,
+      title: 'Your tests mock the API. <span class="hl">The API changed anyway.</span>',
+      sub: 'Watching the contract with ContractRift.',
+    }),
+  ],
   // TikTok / Reels / Shorts cover (9:16)
-  ['tiktok-cover-1080x1920', card({ w: 1080, h: 1920, scale: 1.25, dark: true, shot: 'dashboard-dark', title: 'Your API changed.<br><span class="hl">Nobody told you.</span>', sub: 'Open-source monitor that catches silent API, LLM and MCP changes.' })],
+  [
+    'tiktok-cover-1080x1920',
+    card({
+      w: 1080,
+      h: 1920,
+      scale: 1.25,
+      dark: true,
+      shot: 'dashboard-dark',
+      title: 'Your API changed.<br><span class="hl">Nobody told you.</span>',
+      sub: 'Open-source monitor that catches silent API, LLM and MCP changes.',
+    }),
+  ],
   // Instagram-style portrait, usable on LinkedIn too (4:5)
-  ['portrait-1080x1350', card({ w: 1080, h: 1350, scale: 1.05, title: 'Watch the <span class="hl">contract</span>, not just the status code.', sub: 'REST APIs · LLM APIs · MCP servers. Self-hosted, open source.' })],
+  [
+    'portrait-1080x1350',
+    card({
+      w: 1080,
+      h: 1350,
+      scale: 1.05,
+      title: 'Watch the <span class="hl">contract</span>, not just the status code.',
+      sub: 'REST APIs · LLM APIs · MCP servers. Self-hosted, open source.',
+    }),
+  ],
   // Product Hunt gallery (1270x760) + thumbnail
-  ['producthunt-1-dashboard-1270x760', gallery({ w: 1270, h: 760, shot: 'dashboard-light', caption: 'See what broke — outages and silent changes in one place' })],
-  ['producthunt-2-drift-1270x760', gallery({ w: 1270, h: 760, shot: 'drift-inbox', caption: 'Every change classified: breaking, warning or info' })],
-  ['producthunt-3-detail-1270x760', gallery({ w: 1270, h: 760, shot: 'monitor-detail', caption: 'Latency, check history and the learned baseline' })],
-  ['producthunt-4-form-1270x760', gallery({ w: 1270, h: 760, shot: 'monitor-form', caption: 'REST, LLM and MCP monitors — test before you save' })],
-  ['producthunt-5-dark-1270x760', gallery({ w: 1270, h: 760, shot: 'dashboard-dark', dark: true, caption: 'Self-hosted, open source, light and dark' })],
+  [
+    'producthunt-1-dashboard-1270x760',
+    gallery({ w: 1270, h: 760, shot: 'dashboard-light', caption: 'See what broke — outages and silent changes in one place' }),
+  ],
+  [
+    'producthunt-2-drift-1270x760',
+    gallery({ w: 1270, h: 760, shot: 'drift-inbox', caption: 'Every change classified: breaking, warning or info' }),
+  ],
+  [
+    'producthunt-3-detail-1270x760',
+    gallery({ w: 1270, h: 760, shot: 'monitor-detail', caption: 'Latency, check history and the learned baseline' }),
+  ],
+  [
+    'producthunt-4-form-1270x760',
+    gallery({ w: 1270, h: 760, shot: 'monitor-form', caption: 'REST, LLM and MCP monitors — test before you save' }),
+  ],
+  [
+    'producthunt-5-dark-1270x760',
+    gallery({ w: 1270, h: 760, shot: 'dashboard-dark', dark: true, caption: 'Self-hosted, open source, light and dark' }),
+  ],
 ];
 
 // ---------- video ----------
@@ -110,10 +214,34 @@ const IMAGES = [
  */
 const SCENES = [
   { t: 0, d: 3.2, big: 'Your API still returns <span class="hl">200 OK</span>.', small: 'But the field your code needs is gone.' },
-  { t: 3.2, d: 4.3, big: 'ContractRift watches the <span class="hl">contract</span>.', small: 'It learns what responses look like — and alerts when they change.', shot: 'dashboard-light' },
-  { t: 7.5, d: 4.5, big: 'Breaking changes, <span class="hl">caught</span>.', small: 'Removed fields, new types, new nulls. Accept or dismiss in one click.', shot: 'drift-inbox' },
-  { t: 12, d: 4.2, big: 'REST · <span class="hl">LLM</span> · <span class="hl">MCP</span>', small: 'Model swaps behind your alias. MCP tools that gain required parameters.', shot: 'monitor-form' },
-  { t: 16.2, d: 3.6, big: 'Your API keys <span class="hl">stay home</span>.', small: 'Self-hosted. Encrypted secrets. Open source (AGPL-3.0).', shot: 'monitor-detail' },
+  {
+    t: 3.2,
+    d: 4.3,
+    big: 'ContractRift watches the <span class="hl">contract</span>.',
+    small: 'It learns what responses look like — and alerts when they change.',
+    shot: 'dashboard-light',
+  },
+  {
+    t: 7.5,
+    d: 4.5,
+    big: 'Breaking changes, <span class="hl">caught</span>.',
+    small: 'Removed fields, new types, new nulls. Accept or dismiss in one click.',
+    shot: 'drift-inbox',
+  },
+  {
+    t: 12,
+    d: 4.2,
+    big: 'REST · <span class="hl">LLM</span> · <span class="hl">MCP</span>',
+    small: 'Model swaps behind your alias. MCP tools that gain required parameters.',
+    shot: 'monitor-form',
+  },
+  {
+    t: 16.2,
+    d: 3.6,
+    big: 'Your API keys <span class="hl">stay home</span>.',
+    small: 'Self-hosted. Encrypted secrets. Open source (AGPL-3.0).',
+    shot: 'monitor-detail',
+  },
   { t: 19.8, d: 4.2, cta: true },
 ];
 const TOTAL = 24;
@@ -123,7 +251,8 @@ function videoHtml({ w, h }) {
   const k = vertical ? w / 1080 : h / 1080;
   const scenes = SCENES.map((s, i) => {
     const fadeIn = `fade ${0.45}s ${s.t}s both`;
-    const fadeOut = `fadeout ${0.45}s ${s.t + s.d - 0.45}s both`;
+    // 'forwards' only: with 'both' the fade-out's first keyframe (opacity 1) would show the scene before its turn.
+    const fadeOut = `fadeout ${0.45}s ${s.t + s.d - 0.45}s forwards`;
     if (s.cta) {
       return `<section class="scene cta" style="animation:${fadeIn}">
         <div class="brand big">${LOGO}ContractRift</div>
@@ -145,12 +274,13 @@ function videoHtml({ w, h }) {
   .smalltxt{font-size:${(vertical ? 44 : 40) * k}px;color:#4a4740;margin-top:${28 * k}px;line-height:1.3}
   .shot{${vertical ? 'width:100%' : 'width:58%'};border:1px solid #d9d3c5;border-radius:${18 * k}px;overflow:hidden;box-shadow:0 40px 80px -40px rgba(0,0,0,.5);transform-origin:50% 30%}
   .shot img{display:block;width:100%}
+  ${vertical ? `.shot{height:${1000 * k}px}.shot img{width:175%;max-width:none}` : ''}
   .pulse{display:flex;flex-direction:column;gap:${24 * k}px;align-items:center;font-size:${40 * k}px}
   .miss{color:#c2362b;border-color:#c2362b}
   .cta{flex-direction:column;text-align:center;gap:${40 * k}px}
   .brand.big{font-size:${110 * k}px;justify-content:center}
   .line{font-size:${56 * k}px;font-weight:600}
-  .link{font-size:${(vertical ? 34 : 30) * k}px;padding:.5em 1.2em}
+  .link{font-size:${(vertical ? 30 : 30) * k}px;padding:.5em 1.2em;white-space:nowrap}
   .tiny{font-family:'Martian Mono',monospace;font-size:${26 * k}px;color:#7c786e}
   .progress{position:absolute;left:0;bottom:0;height:${10 * k}px;background:#d9531a;animation:grow ${TOTAL}s 0s linear both}
   @keyframes fade{from{opacity:0;transform:translateY(${24 * k}px)}to{opacity:1;transform:none}}
@@ -171,14 +301,47 @@ async function renderVideo(browser, name, w, h) {
   const fps = 30;
   for (let f = 0; f < TOTAL * fps; f++) {
     const ms = (f * 1000) / fps;
-    await page.evaluate((t) => document.getAnimations().forEach((a) => { a.pause(); a.currentTime = t; }), ms);
+    await page.evaluate(
+      (t) =>
+        document.getAnimations().forEach((a) => {
+          a.pause();
+          a.currentTime = t;
+        }),
+      ms,
+    );
     await page.screenshot({ path: path.join(frames, `f${String(f).padStart(5, '0')}.jpg`), type: 'jpeg', quality: 92 });
   }
   await page.close();
   const out = path.join(OUT_VID, `${name}.mp4`);
-  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-framerate', String(fps), '-i', path.join(frames, 'f%05d.jpg'),
-    '-f', 'lavfi', '-i', 'anullsrc=channel_layout=stereo:sample_rate=44100', '-shortest',
-    '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', '-c:a', 'aac', '-b:a', '128k', out]);
+  execFileSync('ffmpeg', [
+    '-y',
+    '-loglevel',
+    'error',
+    '-framerate',
+    String(fps),
+    '-i',
+    path.join(frames, 'f%05d.jpg'),
+    '-f',
+    'lavfi',
+    '-i',
+    'anullsrc=channel_layout=stereo:sample_rate=44100',
+    '-shortest',
+    '-c:v',
+    'libx264',
+    '-preset',
+    'slow',
+    '-crf',
+    '18',
+    '-pix_fmt',
+    'yuv420p',
+    '-movflags',
+    '+faststart',
+    '-c:a',
+    'aac',
+    '-b:a',
+    '128k',
+    out,
+  ]);
   rmSync(frames, { recursive: true, force: true });
   return out;
 }
@@ -199,4 +362,3 @@ if (!process.argv.includes('--images-only')) {
   console.log('video', await renderVideo(browser, 'linkedin-x-1920x1080', 1920, 1080));
 }
 await browser.close();
-
