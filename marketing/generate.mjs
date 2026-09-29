@@ -1,3 +1,4 @@
+/* global document -- page.evaluate callbacks run in the browser */
 /**
  * Generates social-media images and explainer videos from the real app screenshots.
  *   node marketing/generate.mjs            (from the repo root; needs Google Chrome + ffmpeg on PATH)
@@ -249,7 +250,7 @@ const TOTAL = 24;
 function videoHtml({ w, h }) {
   const vertical = h > w;
   const k = vertical ? w / 1080 : h / 1080;
-  const scenes = SCENES.map((s, i) => {
+  const scenes = SCENES.map((s) => {
     const fadeIn = `fade ${0.45}s ${s.t}s both`;
     // 'forwards' only: with 'both' the fade-out's first keyframe (opacity 1) would show the scene before its turn.
     const fadeOut = `fadeout ${0.45}s ${s.t + s.d - 0.45}s forwards`;
